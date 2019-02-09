@@ -5,7 +5,12 @@ import config from './firestore';
 import {BrowserRouter} from 'react-router-dom';
 import base from 'firebase';
 import Rebase from 're-base';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './scss/index.scss';
+
+import loadIcons from './icons';
+loadIcons();
 
 
 const app = base.initializeApp(config);

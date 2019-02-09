@@ -3,6 +3,8 @@ import { ListGroup, ListGroupItem, InputGroup, InputGroupAddon, InputGroupText, 
 import { rebase } from './index';
 import NoteAdd from './NoteAdd';
 import NoteEdit from './NoteEdit';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {hightlightText} from './helperFunctions';
 
 export default class ListNotes extends Component{
 
@@ -11,6 +13,7 @@ export default class ListNotes extends Component{
 
     this.state = {
       notes: [],
+      search: "",
     }
   }
 
@@ -35,13 +38,20 @@ export default class ListNotes extends Component{
           <div className='flex-1'>
 
             <InputGroup>
-              <InputGroupAddon addonType="prepend">@</InputGroupAddon>
-              <Input placeholder="Search" />
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon="search" />
+                </InputGroupText>
+              </InputGroupAddon>
+
+              <Input placeholder="Search" value={this.state.search} onChange={(e) => this.setState({search: e.target.value})}/>
             </InputGroup>
 
             <ListGroup>
               {
-                  [{id: "add", name:"Add"}].concat(this.state.notes).map(note => (
+                  [{id: "add", name:"Add"}].concat(this.state.notes)
+                  .filter((item) => item.name.toLowerCase().includes(this.state.search.toLowerCase()))
+                  .map(note => (
                     <ListGroupItem
                       active={this.props.match.params.noteID ? (this.props.match.params.noteID === note.id) : false}
                       tag="a"
@@ -52,7 +62,7 @@ export default class ListNotes extends Component{
                       }}
                       action
                       key={note.id}
-                      >{note.name}</ListGroupItem>
+                      >{hightlightText(note.name, this.state.search, '#00FF04')}</ListGroupItem>
                   ))
               }
             </ListGroup>
