@@ -1,0 +1,54 @@
+.row{
+  margin:0px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.sidebar{
+  width:$sidebar-width;
+  height: $sidebar-height;
+  background-color: lightGrey;
+  padding: 20px 10px;
+}
+
+.center-hor{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.center-ver{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.no-border{
+  border-width: 0px;
+}
+
+.flex{
+  flex:1;
+}
+
+.flex-1{
+  flex: 1;
+}
+.flex-2{
+  flex: 2;
+}
+.flex-3{
+  flex: 3;
+}
+.flex-4{
+  flex: 4;
+}
+.flex-5{
+  flex: 5;
+}
+.flex-6{
+  flex: 6;
+}
+
+.clickable{
+  cursor: pointer;
+}

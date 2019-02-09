@@ -1,12 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import App from './navigation';
+import config from './firestore';
+import {BrowserRouter} from 'react-router-dom';
+import base from 'firebase';
+import Rebase from 're-base';
+import './scss/index.scss';
 
-ReactDOM.render(<App />, document.getElementById('root'));
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();
+const app = base.initializeApp(config);
+const db = base.firestore(app);
+
+export let rebase = Rebase.createClass(db);
+export let firebase = db;
+
+const Root = () => {
+  return(
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+  )
+}
+
+ReactDOM.render(<Root />, document.getElementById('root'));
