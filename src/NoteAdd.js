@@ -4,6 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
 
+import { Editor } from 'react-draft-wysiwyg';
+import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 export default class Note extends Component{
 
@@ -17,8 +20,12 @@ export default class Note extends Component{
       tags: [],
       chosenTags: [],
       body: "",
+      uploadedImages: [],
+      editorState: EditorState.createEmpty(),
     }
 
+    this.uploadCallback.bind(this);
+    this.onEditorStateChange.bind(this)
     this.findName.bind(this);
     this.addTag.bind(this);
     this.removeTag.bind(this);
@@ -70,7 +77,16 @@ export default class Note extends Component{
     return this.state.tags.filter(tag => tag.id === id)[0].name;
   }
 
+  onEditorStateChange(value){
+    this.setState({editorState: value});
+    console.log(convertToRaw(this.state.editorState.getCurrentContent()));
+  }
+
   render(){
+    const config={
+          image: { uploadCallback: this.uploadCallback.bind(this) }
+        }
+
     return (
       <div>
           <FormGroup>
@@ -89,7 +105,7 @@ export default class Note extends Component{
                   <ListGroupItem key={id}>
                     {this.findName(id)} <FontAwesomeIcon icon="minus-square" onClick={() => this.removeTag(id)}/>
                   </ListGroupItem>
-  );
+                );
               })
 
             }
@@ -123,13 +139,63 @@ export default class Note extends Component{
                 </ButtonDropdown>
             }
 
+            <div className="container-fluid">
+              <Editor
+                toolbar={ config }
+                editorState={this.state.editorState}
+                toolbarClassName="toolbarClassName"
+                wrapperClassName="wrapperClassName"
+                editorClassName="editorClassName"
+                onEditorStateChange={(e) => this.onEditorStateChange(e)}
+
+                   />
+            </div>
+
           <FormGroup>
             <Label htmlFor="body">Text</Label>
-            <Input type="textarea" id="body" placeholder="Zadajte text" value={this.state.body} onChange={(e) => this.setState({body: e.target.value})}/>
+            <Input type="textarea" id="body" placeholder="Zadajte text" value={convertToRaw(this.state.editorState.getCurrentContent())} onChange={(e) => this.setState({body: e.target.value})}/>
           </FormGroup>
 
           <Button disabled={this.state.saving} color="success" onClick={this.submit.bind(this)} >{!this.state.saving ? "Add":"Adding..."}</Button>
       </div>
     );
   }
+
+  uploadCallback(file) {
+    let uploadedImages = this.state.uploadedImages;
+
+    const imageObject = {
+         file: file,
+         localSrc: URL.createObjectURL(file),
+       }
+
+   uploadedImages.push(imageObject);
+
+   this.setState({uploadedImages: uploadedImages});
+
+   return new Promise(
+     (resolve, reject) => {
+       resolve({ data: { link: imageObject.localSrc } });
+     }
+   );
+  /*    return new Promise(
+        (resolve, reject) => {
+          var reader=new FileReader();
+
+          reader.onloadend = function() {
+            Meteor.call('fileStorage.uploadFile',reader.result,file.name,file.type,(err,response)=>{
+                console.log(response)
+               if(err){
+                 reject(err)
+               }
+
+               resolve({ data: { link: response.data.url } });
+            })
+          }
+
+          reader.readAsDataURL(file);
+        }
+      );*/
+    }
+
 }
