@@ -4,10 +4,15 @@ import { Button, FormGroup, Label, Input } from 'reactstrap';
 import { rebase } from './index';
 
 
-export default class Note extends Component{
+export default class TagEdit extends Component{
 
   constructor(props){
     super(props);
+
+    if (this.props.match.params.tagID === 'add')
+    {
+      return;
+    };
 
     this.state = {
       saving: false,
@@ -17,26 +22,26 @@ export default class Note extends Component{
     }
 
     this.fetchData.bind(this);
-    this.fetchData(this.props.match.params.noteID);
+    this.fetchData(this.props.match.params.tagID);
   }
 
   fetchData(id){
-    rebase.get('notes/' + id, {
+    rebase.get('tags/' + id, {
       context: this,
-    }).then((note) =>
-        this.setState({name: note.name, body: note.body, loading:false}));
+    }).then((tag) =>
+        this.setState({name: tag.name, body: tag.body, loading:false}));
   }
 
   componentWillReceiveProps(props){
-    if(this.props.match.params.noteID!==props.match.params.noteID){
+    if(this.props.match.params.tagID!==props.match.params.tagID){
       this.setState({loading:true});
-      this.fetchData(props.match.params.noteID);
+      this.fetchData(props.match.params.tagID);
     }
   }
 
   submit(){
     this.setState({saving:true});
-    rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body})
+    rebase.updateDoc('/tags/'+this.props.match.params.tagID, {name:this.state.name, body:this.state.body})
     .then(() => {
       this.setState({
         saving:false,
@@ -45,15 +50,28 @@ export default class Note extends Component{
   }
 
   remove(){
-    if (window.confirm("Chcete zmazať túto poznámku?")) {
-      rebase.removeDoc('/notes/'+this.props.match.params.noteID)
-      .then(() => {
-        this.props.history.goBack();
-      });
-    }
+    if (window.confirm("Chcete zmazať tento tag?")) {
+      rebase.removeDoc('/tags/'+this.props.match.params.tagID)
+        .then(() =>
+            { rebase.get('/notes', {
+                context: this,
+                withIds: true,
+              })
+              .then((notes) => notes.map(note => {
+                if (note.tags.includes(this.props.match.params.tagID)){
+                  rebase.updateDoc('/notes/'+note.id, {name: note.name, body: note.body, tags: note.tags.filter(item => item !== this.props.match.params.tagID)})
+                };
+              }))
+            });
+      this.props.history.goBack();
+      };
   }
 
   render(){
+    if (this.props.match.params.tagID === 'add')
+    {
+      return (<div></div>);
+    };
     return (
       <div >
           <FormGroup>
@@ -62,7 +80,7 @@ export default class Note extends Component{
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="body">Text</Label>
+            <Label htmlFor="body">Popis</Label>
             <Input type="textarea" id="body" placeholder="Zadajte text" value={this.state.body} onChange={(e) => this.setState({body: e.target.value})}/>
           </FormGroup>
 
