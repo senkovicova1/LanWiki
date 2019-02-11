@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, FormGroup, Label, Input, FormText } from 'reactstrap';
+import { Button, FormGroup, Label, Input, ListGroup, ListGroupItem, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
 
@@ -15,8 +15,15 @@ export default class Note extends Component{
       loading: true,
       name: "",
       body: "",
+      dropdownOpen: false,
+      tags: [],
+      chosenTags: [],
     }
 
+    this.findName.bind(this);
+    this.addTag.bind(this);
+    this.removeTag.bind(this);
+    this.toggle.bind(this);
     this.fetchData.bind(this);
     this.fetchData(this.props.match.params.noteID);
   }
@@ -25,7 +32,13 @@ export default class Note extends Component{
     rebase.get('notes/' + id, {
       context: this,
     }).then((note) =>
-        this.setState({name: note.name, body: note.body, loading:false}));
+            {
+              rebase.get('/tags', {
+                context: this,
+                withIds: true,
+              }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, tags, loading:false})  );
+            })
+
   }
 
   componentWillReceiveProps(props){
@@ -37,7 +50,7 @@ export default class Note extends Component{
 
   submit(){
     this.setState({saving:true});
-    rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body})
+    rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body, tags: this.state.chosenTags})
     .then(() => {
       this.setState({
         saving:false,
@@ -54,6 +67,28 @@ export default class Note extends Component{
     }
   }
 
+  addTag(id){
+    this.setState({
+      chosenTags: [...this.state.chosenTags, id],
+    })
+  }
+
+  removeTag(id){
+    this.setState({
+      chosenTags: this.state.chosenTags.filter(tagId => tagId !== id),
+    })
+  }
+
+  toggle() {
+      this.setState({
+        dropdownOpen: !this.state.dropdownOpen
+      });
+  }
+
+  findName(id){
+    return this.state.tags.filter(tag => tag.id === id)[0].name;
+  }
+
   render(){
     return (
       <div >
@@ -61,6 +96,50 @@ export default class Note extends Component{
             <Label htmlFor="name">Názov</Label>
             <Input id="name" placeholder="Názov" value={this.state.name} onChange={(e) => this.setState({name: e.target.value})}/>
           </FormGroup>
+
+          <FormGroup>
+              <Label htmlFor="tag">Tags</Label>
+              <ListGroup id="tag">
+            {
+              this.state.chosenTags
+              .map(id => {
+                return(
+                  <ListGroupItem key={id}>
+                    {this.findName(id)} <FontAwesomeIcon icon="minus-square" onClick={() => this.removeTag(id)}/>
+                  </ListGroupItem>
+        );
+              })
+
+            }
+            </ListGroup>
+          </FormGroup>
+
+          {(this.state.tags.length !== this.state.chosenTags.length)
+          &&
+          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle.bind(this)}>
+                  <DropdownToggle caret color="success">
+                    Add tag
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {
+
+                      this.state.tags.map(
+                        tag => {
+                          if (!this.state.chosenTags.includes(tag.id)){
+                              return (
+                              <DropdownItem
+                                key={tag.id}
+                                onClick={() => {this.addTag(tag.id)}}>
+                                 {tag.name}
+                              </DropdownItem>
+                            );
+                          }
+                        }
+                      )
+                    }
+                  </DropdownMenu>
+                </ButtonDropdown>
+            }
 
           <FormGroup>
             <Label htmlFor="body">Text</Label>

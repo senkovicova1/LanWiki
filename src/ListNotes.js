@@ -14,6 +14,7 @@ export default class ListNotes extends Component{
     this.state = {
       notes: [],
       search: "",
+      tags: [],
     }
   }
 
@@ -21,7 +22,7 @@ export default class ListNotes extends Component{
     this.ref = rebase.listenToCollection('/notes', {
       context: this,
       withIds: true,
-      then:notes=>{this.setState({notes})},
+      then: notes=> this.setState({notes})
     });
 
 
@@ -49,16 +50,23 @@ export default class ListNotes extends Component{
 
             <ListGroup>
               {
-                  [{id: "add", name:"Add"}].concat(this.state.notes)
-                  .filter((item) => item.name.toLowerCase().includes(this.state.search.toLowerCase()))
+                  [{id: "add", name:"Add note"}]
+                  .concat(this.state.notes
+                    .filter((item) =>
+                    {
+                      return (this.props.match.params.tagID === 'all')
+                      ||
+                      (item.name.toLowerCase().includes(this.state.search.toLowerCase()) && item.tags.includes(this.props.match.params.tagID));
+
+                    }))
                   .map(note => (
                     <ListGroupItem
                       active={this.props.match.params.noteID ? (this.props.match.params.noteID === note.id) : false}
                       tag="a"
-                      href={"/notes/" + note.id}
+                      href={`/notes/${this.props.match.params.tagID}/` + note.id}
                       onClick={(e) => {
                         e.preventDefault();
-                        this.props.history.push("/notes/" + note.id);
+                        this.props.history.push(`/notes/${this.props.match.params.tagID}/` + note.id);
                       }}
                       action
                       key={note.id}
