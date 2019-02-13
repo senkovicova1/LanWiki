@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, ListGroup, ListGroupItem, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Button, FormGroup, Label, Input, ListGroup, ListGroupItem, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
 
+import CKEditor from 'ckeditor4-react';
+
+import PictureUpload from './PictureUpload';
 
 export default class Note extends Component{
 
@@ -13,17 +16,23 @@ export default class Note extends Component{
     this.state = {
       saving: false,
       loading: true,
+      dropdownOpen: false,
+      modalOpen: false,
       name: "",
       body: "",
-      dropdownOpen: false,
       tags: [],
       chosenTags: [],
     }
 
+    this.handleChange.bind( this );
+    this.onEditorChange.bind( this );
+    this.appendImage.bind(this);
+
     this.findName.bind(this);
     this.addTag.bind(this);
     this.removeTag.bind(this);
-    this.toggle.bind(this);
+    this.toggleDropDown.bind(this);
+    this.toggleModal.bind(this);
     this.fetchData.bind(this);
     this.fetchData(this.props.match.params.noteID);
   }
@@ -79,14 +88,40 @@ export default class Note extends Component{
     })
   }
 
-  toggle() {
+  toggleDropDown() {
       this.setState({
-        dropdownOpen: !this.state.dropdownOpen,
+        dropdownOpen: !this.state.dropdownOpen
+      });
+  }
+
+  toggleModal() {
+      this.setState({
+        modalOpen: !this.state.modalOpen
       });
   }
 
   findName(id){
     return this.state.tags.filter(tag => tag.id === id)[0].name;
+  }
+
+  onEditorChange( evt ) {
+    console.log(evt);
+    this.setState( {
+      body: evt.editor.getData()
+    } );
+  }
+
+  handleChange( changeEvent ) {
+    this.setState( {
+      body: changeEvent.target.value
+    } );
+  }
+
+  appendImage(image){
+    this.setState({
+      body : this.state.body.concat(image),
+      modalOpen : false
+    });
   }
 
   render(){
@@ -116,7 +151,7 @@ export default class Note extends Component{
 
           {(this.state.tags.length !== this.state.chosenTags.length)
           &&
-          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle.bind(this)}>
+          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown.bind(this)}>
                   <DropdownToggle caret color="success">
                     Add tag
                   </DropdownToggle>
@@ -141,10 +176,22 @@ export default class Note extends Component{
                 </ButtonDropdown>
             }
 
-          <FormGroup>
-            <Label htmlFor="body">Text</Label>
-            <Input type="textarea" id="body" placeholder="Zadajte text" value={this.state.body} onChange={(e) => this.setState({body: e.target.value})}/>
-          </FormGroup>
+            <FormGroup>
+                <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Pridať obrázok z uložiska</Button>
+                <Modal isOpen={this.state.modalOpen} toggle={this.toggleModal.bind(this)} >
+                  <ModalHeader toggle={this.toggleModal.bind(this)}>Nahrať obrázok</ModalHeader>
+                  <ModalBody>
+                    <PictureUpload appendImage={this.appendImage.bind(this)}/>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Cancel</Button>{' '}
+                  </ModalFooter>
+                </Modal>
+                <CKEditor
+                  data={this.state.body}
+                  onChange={this.onEditorChange.bind(this)}
+                  />
+              </FormGroup>
 
           <Button disabled={this.state.loading || this.state.saving} color="primary" onClick={this.submit.bind(this)} >{!this.state.saving ? "Save":"Saving..."}</Button>
           <Button disabled={this.state.loading || this.state.saving} color="danger" onClick={this.remove.bind(this)} >Delete</Button>

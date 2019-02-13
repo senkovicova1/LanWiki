@@ -25,12 +25,11 @@ export default class Note extends Component{
       dropdownOpen: false,
       modalOpen: false,
       name: "",
+      body: "",
       tags: [],
       chosenTags: [],
-      body: "",
-      uploadedImages: [],
+  //    uploadedImages: [],
   //    editorState: EditorState.createEmpty(),
-      data: '<p>This is CKEditor 4 instance created by ️⚛️ React.</p>'
     }
 
     this.handleChange.bind( this );
@@ -100,19 +99,19 @@ export default class Note extends Component{
   onEditorChange( evt ) {
     console.log(evt);
     this.setState( {
-      data: evt.editor.getData()
+      body: evt.editor.getData()
     } );
   }
 
   handleChange( changeEvent ) {
     this.setState( {
-      data: changeEvent.target.value
+      body: changeEvent.target.value
     } );
   }
 
   appendImage(image){
     this.setState({
-      data : this.state.data.concat(image),
+      body : this.state.body.concat(image),
       modalOpen : false
     });
   }
@@ -186,7 +185,7 @@ export default class Note extends Component{
                 </ModalFooter>
               </Modal>
               <CKEditor
-                data={this.state.data}
+                data={this.state.body}
                 onChange={this.onEditorChange.bind(this)}
                 />
             </FormGroup>
@@ -202,11 +201,6 @@ export default class Note extends Component{
 
                    />
             </div>
-
-          <FormGroup>
-            <Label htmlFor="body">Text</Label>
-            <Input type="textarea" id="body" placeholder="Zadajte text" value={convertToRaw(this.state.editorState.getCurrentContent())} onChange={(e) => this.setState({body: e.target.value})}/>
-          </FormGroup>
           */}
 
           <Button disabled={this.state.saving} color="success" onClick={this.submit.bind(this)} >{!this.state.saving ? "Add":"Adding..."}</Button>
@@ -218,7 +212,7 @@ export default class Note extends Component{
 
 //for drag and drop draft js
 
-onEditorStateChange(value){
+/*onEditorStateChange(value){
   this.setState({editorState: value});
 //  console.log(stateToHTML(this.state.editorState.getCurrentContent()));
 }
@@ -240,6 +234,6 @@ uploadCallback(file) {
      resolve({ data: { link: imageObject.localSrc } });
    }
  );
-  }
+}*/
 
 }
