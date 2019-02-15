@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { rebase } from './index';
-import { Media, Container, Row, Col } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 
 import firebase from 'firebase';
 import FileUploader from "react-firebase-file-uploader";
@@ -72,7 +72,7 @@ https://firebasestorage.googleapis.com/v0/b/lanwiki.appspot.com/o/notes%2Fbird.j
     */
 
   render() {
-    if (this.state.images.length === 0 && this.state.names.length != 0){
+    if (this.state.images.length === 0 && this.state.names.length !== 0){
         this.loadImages();
       }
 

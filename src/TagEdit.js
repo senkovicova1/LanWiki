@@ -57,11 +57,12 @@ export default class TagEdit extends Component{
                 context: this,
                 withIds: true,
               })
-              .then((notes) => notes.map(note => {
-                if (note.tags.includes(this.props.match.params.tagID)){
-                  rebase.updateDoc('/notes/'+note.id, {name: note.name, body: note.body, tags: note.tags.filter(item => item !== this.props.match.params.tagID)})
-                };
-              }))
+              .then((notes) =>
+                notes.filter(note => (note.tags.includes(this.props.match.params.tagID)))
+                .map(note =>
+                    rebase.updateDoc('/notes/'+note.id, {name: note.name, body: note.body, tags: note.tags.filter(item => item !== this.props.match.params.tagID)})
+                    )                
+              )
             });
       this.props.history.goBack();
       };

@@ -52,13 +52,10 @@ export default class ListNotes extends Component{
               {
                   [{id: "add", name:"New note"}]
                   .concat(this.state.notes
-                    .filter((item) =>
-                    {
-                      return (this.props.match.params.tagID === 'all')
+                    .filter((item) => item.name.toLowerCase().includes(this.state.search.toLowerCase()))
+                    .filter((item) => this.props.match.params.tagID === 'all'
                       ||
-                      (item.name.toLowerCase().includes(this.state.search.toLowerCase()) && item.tags.includes(this.props.match.params.tagID));
-
-                    }))
+                       item.tags.includes(this.props.match.params.tagID)))
                   .map(note => (
                     <ListGroupItem
                       active={this.props.match.params.noteID ? (this.props.match.params.noteID === note.id) : false}

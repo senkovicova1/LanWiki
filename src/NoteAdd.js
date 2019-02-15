@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem, ButtonDropdown, ButtonGroup, ButtonToolbar, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
@@ -59,19 +59,20 @@ export default class Note extends Component{
     }).then((tags) =>
         this.setState({
           tags,
-          id: Date.now(),
         }));
   }
 
   submit(){
     console.log(this.state.id);
     this.setState({saving:true});
-    if (!this.state.inDatabase){
-      rebase.addToCollection('notes', {name:this.state.name, tags: this.state.chosenTags, body:this.state.body}, `${this.state.id}`)
-      .then(() => {
+    if (this.state.id === null){
+      rebase.addToCollection('notes', {name:this.state.name, tags: this.state.chosenTags, body:this.state.body})
+      .then((vec) => {
+        console.log(vec);
         this.setState({
           saving:false,
           timeout: null,
+          id: vec.id,
         });
       });
     } else {
@@ -86,15 +87,13 @@ export default class Note extends Component{
   }
 
   remove(){
-    if (window.confirm("Chcete zmazať túto poznámku?")) {
+    if (this.state.is !== null && window.confirm("Chcete zmazať túto poznámku?")) {
       rebase.removeDoc('/notes/'+this.state.id)
       .then(() => {
         this.setState({
           name: "",
           body: "",
           chosenTags: [],
-
-          inDatabase: false,
 
           id: null,
           timeout: null,
@@ -218,6 +217,8 @@ export default class Note extends Component{
                                    {tag.name}
                                 </DropdownItem>
                               );
+                            } else {
+                              return null;
                             }
                           }
                         )

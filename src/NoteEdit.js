@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem, ButtonDropdown,  ButtonGroup, ButtonToolbar, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
@@ -200,6 +200,8 @@ export default class Note extends Component{
                                          {tag.name}
                                       </DropdownItem>
                                     );
+                                  } else {
+                                    return null;
                                   }
                                 }
                               )
