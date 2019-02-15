@@ -4,11 +4,20 @@
   flex-wrap: wrap;
 }
 
+.app{
+  height: 100vh;
+}
+
+.user{
+  height: $user-height;
+}
+
 .sidebar{
-  width:$sidebar-width;
+  width: $sidebar-width;
   height: $sidebar-height;
   background-color: lightGrey;
   padding: 20px 10px;
+  overflow: auto;
 }
 
 .center-hor{
@@ -21,7 +30,6 @@
   margin-right: auto;
 }
 
-
 .no-border{
   border-width: 0px;
 }
@@ -32,21 +40,33 @@
 
 .flex-1{
   flex: 1;
+  height: 100vh;
+  overflow: auto;
+/*  overflow-y: scroll;
+  overflow-x: hidden;*/
 }
 .flex-2{
   flex: 2;
 }
 .flex-3{
   flex: 3;
+  height: 100vh;
+  overflow: auto;
 }
 .flex-4{
   flex: 4;
+  height: 100vh;
+  overflow: auto;
 }
 .flex-5{
   flex: 5;
+  height: 100vh;
+  overflow: auto;
 }
 .flex-6{
   flex: 6;
+  height: 100vh;
+  overflow: auto;
 }
 
 .clickable{

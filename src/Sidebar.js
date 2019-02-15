@@ -27,9 +27,9 @@ class Sidebar extends Component {
 
   render() {
     return (
-      <div className="App">
+      <div className="app">
 
-      <div>
+      <div className="user">
         User name
       </div>
 

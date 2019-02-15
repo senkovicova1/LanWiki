@@ -22,10 +22,11 @@ export default class Note extends Component{
       body: "",
       tags: [],
       chosenTags: [],
+
+      timeout: null,
     }
 
-    this.handleChange.bind( this );
-    this.onEditorChange.bind( this );
+    this.onEditorChange.bind(this);
     this.appendImage.bind(this);
 
     this.findName.bind(this);
@@ -63,6 +64,7 @@ export default class Note extends Component{
     .then(() => {
       this.setState({
         saving:false,
+        timeout: null,
       });
     });
   }
@@ -90,7 +92,7 @@ export default class Note extends Component{
 
   toggleDropDown() {
       this.setState({
-        dropdownOpen: !this.state.dropdownOpen
+        dropdownOpen: !this.state.dropdownOpen,
       });
   }
 
@@ -105,16 +107,16 @@ export default class Note extends Component{
   }
 
   onEditorChange( evt ) {
-    console.log(evt);
     this.setState( {
       body: evt.editor.getData()
     } );
-  }
 
-  handleChange( changeEvent ) {
-    this.setState( {
-      body: changeEvent.target.value
-    } );
+    if (this.state.timeout === null){
+      this.setState({
+        timeout: setTimeout(this.submit(), 250),
+      })
+    }
+
   }
 
   appendImage(image){
@@ -184,14 +186,14 @@ export default class Note extends Component{
                     <PictureUpload appendImage={this.appendImage.bind(this)}/>
                   </ModalBody>
                   <ModalFooter>
-                    <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Cancel</Button>{' '}
+                    <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Close</Button>{' '}
                   </ModalFooter>
                 </Modal>
                 <CKEditor
                   data={this.state.body}
                   onChange={this.onEditorChange.bind(this)}
                   />
-              </FormGroup>
+            </FormGroup>
 
           <Button disabled={this.state.loading || this.state.saving} color="primary" onClick={this.submit.bind(this)} >{!this.state.saving ? "Save":"Saving..."}</Button>
           <Button disabled={this.state.loading || this.state.saving} color="danger" onClick={this.remove.bind(this)} >Delete</Button>

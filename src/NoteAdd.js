@@ -8,7 +8,6 @@ import CKEditor from 'ckeditor4-react';
 
 import PictureUpload from './PictureUpload';
 
-
 /*import { Editor } from 'react-draft-wysiwyg';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -32,7 +31,6 @@ export default class Note extends Component{
   //    editorState: EditorState.createEmpty(),
     }
 
-    this.handleChange.bind( this );
     this.onEditorChange.bind( this );
     this.appendImage.bind(this);
   /*  this.uploadCallback.bind(this);
@@ -97,15 +95,8 @@ export default class Note extends Component{
   }
 
   onEditorChange( evt ) {
-    console.log(evt);
     this.setState( {
       body: evt.editor.getData()
-    } );
-  }
-
-  handleChange( changeEvent ) {
-    this.setState( {
-      body: changeEvent.target.value
     } );
   }
 
@@ -181,7 +172,7 @@ export default class Note extends Component{
                   <PictureUpload appendImage={this.appendImage.bind(this)}/>
                 </ModalBody>
                 <ModalFooter>
-                  <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Cancel</Button>{' '}
+                  <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Close</Button>{' '}
                 </ModalFooter>
               </Modal>
               <CKEditor
