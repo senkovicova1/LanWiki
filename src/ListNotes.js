@@ -50,7 +50,7 @@ export default class ListNotes extends Component{
 
             <ListGroup>
               {
-                  [{id: "add", name:"Add note"}]
+                  [{id: "add", name:"New note"}]
                   .concat(this.state.notes
                     .filter((item) =>
                     {

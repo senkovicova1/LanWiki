@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, ListGroup, ListGroupItem, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem, ButtonDropdown,  ButtonGroup, ButtonToolbar, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
@@ -29,11 +29,15 @@ export default class Note extends Component{
     this.onEditorChange.bind(this);
     this.appendImage.bind(this);
 
+    this.startTimeout.bind(this);
+
+    this.changeName.bind(this);
     this.findName.bind(this);
     this.addTag.bind(this);
     this.removeTag.bind(this);
     this.toggleDropDown.bind(this);
     this.toggleModal.bind(this);
+    this.submit.bind(this);
     this.fetchData.bind(this);
     this.fetchData(this.props.match.params.noteID);
   }
@@ -78,16 +82,30 @@ export default class Note extends Component{
     }
   }
 
+  changeName(e){
+      console.log(this.state);
+     this.setState({
+       name: e.target.value,
+     });
+
+     this.startTimeout();
+  }
+
   addTag(id){
     this.setState({
       chosenTags: [...this.state.chosenTags, id],
     })
+
+    this.startTimeout();
+
   }
 
   removeTag(id){
     this.setState({
       chosenTags: this.state.chosenTags.filter(tagId => tagId !== id),
     })
+
+    this.startTimeout();
   }
 
   toggleDropDown() {
@@ -111,12 +129,7 @@ export default class Note extends Component{
       body: evt.editor.getData()
     } );
 
-    if (this.state.timeout === null){
-      this.setState({
-        timeout: setTimeout(this.submit(), 250),
-      })
-    }
-
+    this.startTimeout();
   }
 
   appendImage(image){
@@ -124,59 +137,78 @@ export default class Note extends Component{
       body : this.state.body.concat(image),
       modalOpen : false
     });
+
+    this.startTimeout();
+  }
+
+  startTimeout(){
+    if (this.state.timeout === null){
+      this.setState({
+        timeout: setTimeout(this.submit.bind(this), 250),
+      })
+    }
   }
 
   render(){
     return (
       <div >
           <FormGroup>
-            <Label htmlFor="name">Názov</Label>
-            <Input id="name" placeholder="Názov" value={this.state.name} onChange={(e) => this.setState({name: e.target.value})}/>
+            <InputGroup>
+              <Input
+                id="name"
+                placeholder="Názov"
+                value={this.state.name}
+                onChange={(e) => this.changeName(e)}
+              />
+
+              <InputGroupAddon addonType="append" onClick={this.remove.bind(this)}>
+                    <InputGroupText>
+                      <FontAwesomeIcon icon="trash" />
+                    </InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
           </FormGroup>
 
           <FormGroup>
-              <Label htmlFor="tag">Tags</Label>
-              <ListGroup id="tag">
-            {
-              this.state.chosenTags
-              .map(id => {
-                return(
-                  <ListGroupItem key={id}>
-                    {this.findName(id)} <FontAwesomeIcon icon="minus-square" onClick={() => this.removeTag(id)}/>
-                  </ListGroupItem>
-        );
-              })
+                <ButtonGroup>
+                  {
+                    this.state.chosenTags
+                    .map(id => {
+                      return(
+                        <Button key={id}>
+                          {this.findName(id)} <FontAwesomeIcon icon="minus-square" onClick={() => this.removeTag(id)}/>
+                        </Button>
+                      );
+                    })
+                  }
 
-            }
-            </ListGroup>
-          </FormGroup>
-
-          {(this.state.tags.length !== this.state.chosenTags.length)
-          &&
-          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown.bind(this)}>
-                  <DropdownToggle caret color="success">
-                    Add tag
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {
-
-                      this.state.tags.map(
-                        tag => {
-                          if (!this.state.chosenTags.includes(tag.id)){
-                              return (
-                              <DropdownItem
-                                key={tag.id}
-                                onClick={() => {this.addTag(tag.id)}}>
-                                 {tag.name}
-                              </DropdownItem>
-                            );
-                          }
-                        }
-                      )
-                    }
-                  </DropdownMenu>
-                </ButtonDropdown>
-            }
+                  {  (this.state.tags.length !== this.state.chosenTags.length)
+                    &&
+                  <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown.bind(this)}>
+                          <DropdownToggle caret color="success">
+                            Add tag
+                          </DropdownToggle>
+                          <DropdownMenu>
+                            {
+                              this.state.tags.map(
+                                tag => {
+                                  if (!this.state.chosenTags.includes(tag.id)){
+                                      return (
+                                      <DropdownItem
+                                        key={tag.id}
+                                        onClick={() => {this.addTag(tag.id)}}>
+                                         {tag.name}
+                                      </DropdownItem>
+                                    );
+                                  }
+                                }
+                              )
+                            }
+                          </DropdownMenu>
+                    </ButtonDropdown>
+                  }
+                  </ButtonGroup>
+            </FormGroup>
 
             <FormGroup>
                 <Button outline color="secondary" size="sm" onClick={this.toggleModal.bind(this)}>Pridať obrázok z uložiska</Button>
@@ -192,12 +224,12 @@ export default class Note extends Component{
                 <CKEditor
                   data={this.state.body}
                   onChange={this.onEditorChange.bind(this)}
+                  config={ {
+                      height: [ '75vh' ]
+                  } }
                   />
             </FormGroup>
-
-          <Button disabled={this.state.loading || this.state.saving} color="primary" onClick={this.submit.bind(this)} >{!this.state.saving ? "Save":"Saving..."}</Button>
-          <Button disabled={this.state.loading || this.state.saving} color="danger" onClick={this.remove.bind(this)} >Delete</Button>
-      </div>
+</div>
     );
   }
 }
