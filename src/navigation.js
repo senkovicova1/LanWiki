@@ -16,8 +16,9 @@ export default class Navigation extends Component {
             <Route exact path='/notes/:tagID' component={ListNotes} />
             <Route exact path='/notes/:tagID/:noteID' component={ListNotes} />
 
-          <Route exact path='/tags/add' component={TagAdd} />
-          <Route exact path='/tags/:tagID' component={TagEdit} />
+            <Route exact path='/tags/add' component={TagAdd} />
+            <Route exact path='/tags/:tagID' component={TagEdit} />
+
           </div>
         </div>
 
