@@ -5,6 +5,7 @@ import { rebase } from './index';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UserAdd from './UserAdd';
 import UserEdit from './UserEdit';
+import Login from './Login';
 
 class Sidebar extends Component {
 
@@ -12,18 +13,8 @@ class Sidebar extends Component {
     super(props);
     this.state = {
       tags : [],
-      openAdd: false,
-      openEdit: false,
-
-      fname: "",
-      lname: "",
-      email: "",
-      pass1: "",
-      pass2: "",
+      openLogin: false,
     }
-
-    this.addData.bind(this);
-    this.submit.bind(this);
   }
 
   componentWillMount(){
@@ -38,58 +29,19 @@ class Sidebar extends Component {
       rebase.removeBinding(this.ref);
   }
 
-  submit(){
-    
-    this.setState({
-      openAdd: false,
-      openEdit: false,
-    });
-  }
-
-  addData(value, data){
-    switch (value) {
-      case 'fname':
-        this.setState({fname: data});
-        break;
-      case 'lname':
-        this.setState({lname: data});
-        break;
-      case 'email':
-        this.setState({email: data});
-        break;
-      case 'pass1':
-        this.setState({pass1: data});
-        break;
-      default:
-        this.setState({pass2: data});
-        break;
-    }
+  logged(){
+    this.setState({openLogin: false});
   }
 
   render() {
-    console.log(window.location.pathname);
     return (
       <div className="app">
 
-       <Modal isOpen={this.state.openAdd} >
-          <ModalHeader>Add user</ModalHeader>
-          <ModalBody>
-              <UserAdd addData={() => this.addData()}/>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="success" onClick={() => this.submit()}>Save</Button>{' '}
-            <Button color="secondary" onClick={() => this.setState({openAdd: false})}>Cancel</Button>
-          </ModalFooter>
-        </Modal>
-
-        <Modal isOpen={this.state.openEdit} >
-           <ModalHeader>Edit users</ModalHeader>
+        <Modal isOpen={this.state.openLogin} >
+           <ModalHeader>Login</ModalHeader>
            <ModalBody>
-               <UserEdit match={this.props.match} history={this.props.history}/>
+               <Login logged={this.logged()}/>
            </ModalBody>
-           <ModalFooter>
-             <Button color="secondary" onClick={() => this.setState({openEdit: false})}>Cancel</Button>
-           </ModalFooter>
          </Modal>
 
       <ListGroup className='sidebar'>
@@ -100,9 +52,11 @@ class Sidebar extends Component {
               color="info"
               style={{color: 'rgb(0, 123, 255)'}}>
                 Username
-              <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}} onClick={() => this.setState({openEdit: true})}/></Button>
-              <Button color="link" style={{color: 'rgb(0, 123, 255)'}} onClick={() => this.setState({openAdd: true})}>+</Button>
-            </ListGroupItem>
+              <Link className='link' to={{pathname: `/users`}}  key={0}>
+                <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+
+              </Link>
+          </ListGroupItem>
 
 
             <Link className='link' to={{pathname: `/tags/add`}}  key={0}>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, Alert, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
@@ -20,66 +20,83 @@ export default class Note extends Component{
     super(props);
 
     this.state = {
-      fname: "",
-      lname: "",
+      username: "",
       email: "",
       pass1: "",
       pass2: "",
+      active: false,
     }
-}
+    this.submit.bind(this);
+  }
+
+  submit(){
+    let data = {username:this.state.username, email:this.state.email, active: this.state.active};
+    if (this.state.pass1 === this.state.pass2 && this.state.pass1 !== ""){
+      data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active};
+    }
+
+    rebase.addToCollection('/users/'+this.props.match.params.userID, data);
+  }
 
   render(){
     return (
       <div>
+        <h2>Add new user</h2>
+
         <FormGroup>
+
+            <FormGroup check>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={this.state.active}
+                onChange={(e) => this.setState({active: e.target.chec})}                
+                />{' '}
+              Active
+            </Label>
+          </FormGroup>
+
             <Input
-              id="fname"
-              placeholder="First name"
-              value={this.state.fname}
-              onChange={(e) => {
-                this.setState({fname: e.target.value});
-                this.props.addData("fname",e.target.value);
-              }}
-            />
-            <Input
-              id=";name"
-              placeholder="Last name"
-              value={this.state.lname}
-              onChange={(e) => {
-                this.setState({lname: e.target.value});
-                this.props.addData("lname",e.target.value);
-              }}
+              id="username"
+              placeholder="Username"
+              value={this.state.username}
+              onChange={(e) =>
+                this.setState({username: e.target.value})}
             />
             <Input
               id="email"
               placeholder="email"
               value={this.state.email}
-              onChange={(e) => {
-                this.setState({email: e.target.value});
-                this.props.addData("email",e.target.value);
-              }}
+              onChange={(e) =>
+                this.setState({email: e.target.value})}
             />
 
           <Input
             id="password"
             placeholder="Password"
             value={this.state.pass1}
-            onChange={(e) => {
-              this.setState({pass1: e.target.value});
-              this.props.addData("pass1",e.target.value);
-            }}
+            onChange={(e) =>
+              this.setState({pass1: e.target.value})}
           />
 
           <Input
             id="password"
             placeholder="Repeat password"
             value={this.state.pass2}
-            onChange={(e) => {
-              this.setState({pass2: e.target.value});
-              this.props.addData("pass2",e.target.value);
-            }}
+            onChange={(e) =>
+              this.setState({pass2: e.target.value})}
           />
+
+          { (this.state.pass1 !== this.state.pass2)
+            &&
+            <Alert color="danger">
+                    Zadané heslá sa nezhodujú.
+            </Alert>
+
+          }
         </FormGroup>
+
+        <Button color="success"> Save </Button>
       </div>
     );
   }
