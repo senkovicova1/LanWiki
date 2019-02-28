@@ -10,6 +10,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './scss/index.scss';
 
 import loadIcons from './icons';
+
+import store from "./redux/Store";
+import { addArticle, loginUser } from "./redux/actions/index";
+window.store = store;
+window.addArticle = addArticle;
+window.loginUser = loginUser;
+
 loadIcons();
 
 

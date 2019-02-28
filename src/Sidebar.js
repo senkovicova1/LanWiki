@@ -13,7 +13,7 @@ class Sidebar extends Component {
     super(props);
     this.state = {
       tags : [],
-      openLogin: false,
+      openLogin: true,
     }
   }
 
@@ -40,7 +40,7 @@ class Sidebar extends Component {
         <Modal isOpen={this.state.openLogin} >
            <ModalHeader>Login</ModalHeader>
            <ModalBody>
-               <Login logged={this.logged()}/>
+               <Login logged={() => this.logged()}/>
            </ModalBody>
          </Modal>
 

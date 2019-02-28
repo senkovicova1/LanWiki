@@ -1,28 +1,47 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, FormGroup, Input, Alert } from 'reactstrap';
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
 
-import CKEditor from 'ckeditor4-react';
+import store from "./redux/Store";
+import { loginUser } from "./redux/actions/index";
 
-import PictureUpload from './PictureUpload';
-
-/*import { Editor } from 'react-draft-wysiwyg';
-import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import {stateToHTML} from 'draft-js-export-html';*/
-//import MyEditor from './Editor';
-
-export default class Note extends Component{
-
+export default class Login extends Component{
   constructor(props){
     super(props);
     this.state = {
       email: "",
       pass: "",
+      invalid: false,
+      users: []
     }
-}
+
+    this.submit.bind(this);
+    this.fetch.bind(this);
+    this.fetch();
+  }
+
+  fetch(){
+    console.log("ugh");
+    rebase.get('users', {
+      context: this,
+      withIds: true,
+    }).then((users) => this.setState({users}))
+  }
+
+  submit(){
+    let user = this.state.users.filter(u => u.email === this.state.email && u.password === this.state.pass);
+
+    if (user.length === 0){
+      this.setState({
+        invalid: true,
+      });
+    } else {
+      store.dispatch(loginUser(user[0]));
+      this.props.logged();
+    }
+  }
 
   render(){
     return (
@@ -32,22 +51,24 @@ export default class Note extends Component{
               id="email"
               placeholder="email"
               value={this.state.email}
-              onChange={(e) => {
-                this.setState({email: e.target.value});
-                this.props.addData("email",e.target.value);
-              }}
+              onChange={(e) => this.setState({email: e.target.value})}
             />
 
           <Input
             id="password"
             placeholder="Password"
-            value={this.state.pass1}
-            onChange={(e) => {
-              this.setState({pass1: e.target.value});
-              this.props.addData("pass1",e.target.value);
-            }}
+            value={this.state.pass}
+            onChange={(e) => this.setState({pass: e.target.value})}
           />
+        { (this.state.invalid)
+            &&
+            <Alert color="danger">
+                Chybné meno alebo heslo.
+            </Alert>
+          }
         </FormGroup>
+
+        <Button color="success" onClick={() => this.submit()}> Save </Button>
       </div>
     );
   }

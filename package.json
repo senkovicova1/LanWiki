@@ -43,6 +43,7 @@
   ],
   "devDependencies": {
     "css-loader": "^2.1.0",
+    "redux": "^4.0.1",
     "style-loader": "^0.23.1"
   }
 }

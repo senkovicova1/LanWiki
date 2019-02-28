@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+
+        import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, Alert, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -124,7 +125,6 @@ export default class Note extends Component{
           <Alert color="danger">
                   Zadané heslá sa nezhodujú.
           </Alert>
-
         }
         </FormGroup>
 
