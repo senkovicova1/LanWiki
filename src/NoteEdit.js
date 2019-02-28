@@ -150,6 +150,7 @@ export default class Note extends Component{
   }
 
   render(){
+    console.log(this.state.chosenTags);
     return (
       <div >
           <FormGroup>

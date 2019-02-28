@@ -56,10 +56,17 @@ export default class Note extends Component{
     rebase.get('/tags', {
       context: this,
       withIds: true,
-    }).then((tags) =>
+    }).then((tags) =>{
+      let addedTag = [];
+      if (!window.location.pathname.includes('/all')){
+        let tagID = window.location.pathname.substring(7, window.location.pathname.length - 4);
+        addedTag = [tagID];
+      }
         this.setState({
           tags,
-        }));
+          chosenTags: addedTag,
+        });
+      });
   }
 
   submit(){
@@ -168,6 +175,7 @@ export default class Note extends Component{
           image: { uploadCallback: this.uploadCallback.bind(this) }
         }*/
 
+          console.log(this.state.chosenTags);
     return (
       <div>
         <FormGroup>
@@ -243,7 +251,7 @@ export default class Note extends Component{
                 data={this.state.body}
                 onChange={this.onEditorChange.bind(this)}
                 config={ {
-                    height: [ '75vh' ]
+                    height: [ '60vh' ]
                 } }
                 />
             </FormGroup>
