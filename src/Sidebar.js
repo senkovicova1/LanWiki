@@ -7,14 +7,20 @@ import UserAdd from './UserAdd';
 import UserEdit from './UserEdit';
 import Login from './Login';
 
+import store from "./redux/Store";
+import { loginUser } from "./redux/actions/index";
+
 class Sidebar extends Component {
 
   constructor(props){
     super(props);
     this.state = {
       tags : [],
-      openLogin: true,
+      openLogin: false,
+      logged: false,
+      username: "Log in"
     }
+    this.logout.bind(this);
   }
 
   componentWillMount(){
@@ -23,6 +29,7 @@ class Sidebar extends Component {
       withIds: true,
       then: tags=>{this.setState({tags})},
     });
+
   }
 
   componentWillUnmount() {
@@ -30,7 +37,16 @@ class Sidebar extends Component {
   }
 
   logged(){
-    this.setState({openLogin: false});
+    this.setState({openLogin: false, logged: true, username: store.getState().user.username});
+  }
+
+  logout(){
+    store.dispatch(loginUser({}));
+    this.setState({openLogin: true, logged: false, username: "Log in"});
+  }
+
+  cancelLog(){
+    this.setState({openLogin: false, logged: false});
   }
 
   render() {
@@ -40,7 +56,7 @@ class Sidebar extends Component {
         <Modal isOpen={this.state.openLogin} >
            <ModalHeader>Login</ModalHeader>
            <ModalBody>
-               <Login logged={() => this.logged()}/>
+               <Login logged={() => this.logged()} cancel={() => this.cancelLog()}/>
            </ModalBody>
          </Modal>
 
@@ -51,11 +67,18 @@ class Sidebar extends Component {
               key={1000}
               color="info"
               style={{color: 'rgb(0, 123, 255)'}}>
-                Username
+                {this.state.username}
               <Link className='link' to={{pathname: `/users`}}  key={0}>
                 <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
-
-              </Link>
+                </Link>
+                { this.state.logged
+                  &&
+              <Button color="link" onClick={() => this.logout()}> <FontAwesomeIcon icon="sign-out-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+                  }
+                  { !this.state.logged
+                    &&
+                <Button color="link" onClick={() => this.setState({openLogin: true})}> <FontAwesomeIcon icon="sign-in-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+                    }
           </ListGroupItem>
 
 

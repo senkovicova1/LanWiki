@@ -48,7 +48,7 @@ export default class ListUsers extends Component{
 
             <ListGroup>
               {
-                [{id: "add", email:"New note +"}]
+                [{id: "add", email:"New user +"}]
                 .concat(
                   this.state.users.filter((item) => item.email.toLowerCase().includes(this.state.search.toLowerCase())))
                   .map(user => (

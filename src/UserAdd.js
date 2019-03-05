@@ -30,12 +30,19 @@ export default class Note extends Component{
   }
 
   submit(){
-    let data = {username:this.state.username, email:this.state.email, active: this.state.active};
     if (this.state.pass1 === this.state.pass2 && this.state.pass1 !== ""){
-      data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active};
+      let data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active};
+      rebase.addToCollection('/users', data)
+      .then(() => {
+        this.setState({
+          username: "",
+          email: "",
+          pass1: "",
+          pass2: "",
+          active: false,
+        });
+      });
     }
-
-    rebase.addToCollection('/users/'+this.props.match.params.userID, data);
   }
 
   render(){
@@ -50,7 +57,7 @@ export default class Note extends Component{
               <Input
                 type="checkbox"
                 checked={this.state.active}
-                onChange={(e) => this.setState({active: e.target.chec})}                
+                onChange={(e) => this.setState({active: e.target.checked})}
                 />{' '}
               Active
             </Label>
@@ -96,7 +103,7 @@ export default class Note extends Component{
           }
         </FormGroup>
 
-        <Button color="success"> Save </Button>
+        <Button color="success" onClick={() => this.submit()}> Save </Button>
       </div>
     );
   }

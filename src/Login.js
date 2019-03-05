@@ -23,7 +23,6 @@ export default class Login extends Component{
   }
 
   fetch(){
-    console.log("ugh");
     rebase.get('users', {
       context: this,
       withIds: true,
@@ -69,6 +68,8 @@ export default class Login extends Component{
         </FormGroup>
 
         <Button color="success" onClick={() => this.submit()}> Save </Button>
+        {"                        "}
+        <Button color="secondary" onClick={() => this.props.cancel()}> Cancel </Button>
       </div>
     );
   }
