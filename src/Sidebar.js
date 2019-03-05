@@ -130,6 +130,7 @@ class Sidebar extends Component {
 
           {
               this.state.tags
+              .filter(tag => tag.public || (this.username !== 'Log in' && tag.read.includes(store.getState().user.id)))
                 .map(asset =>
                   {
                     let active = window.location.pathname.includes(asset.id);

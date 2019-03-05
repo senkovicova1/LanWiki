@@ -23,6 +23,8 @@ export default class Note extends Component{
     }
 
     this.addUser.bind(this);
+    this.changeUserRead.bind(this);
+    this.changeUserWrite.bind(this);
   }
 
   componentWillMount(){
