@@ -8,6 +8,8 @@ import CKEditor from 'ckeditor4-react';
 
 import PictureUpload from './PictureUpload';
 
+import store from "./redux/Store";
+
 export default class Note extends Component{
 
   constructor(props){
@@ -46,12 +48,12 @@ export default class Note extends Component{
     rebase.get('notes/' + id, {
       context: this,
     }).then((note) =>
-            {
-              rebase.get('/tags', {
-                context: this,
-                withIds: true,
-              }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, tags, loading:false})  );
-            })
+        {
+          rebase.get('/tags', {
+            context: this,
+            withIds: true,
+          }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, tags, loading:false})  );
+        })
 
   }
 
@@ -149,7 +151,35 @@ export default class Note extends Component{
     }
   }
 
+  /*
+  ak user (prihlaseny alebo public) nema opravnenie write na ani jeden z tagov, tak sa mu vypise iba ciste
+  */
   render(){
+
+    const CAN_WRITE = this.state.tags.length > 0 && this.state.tags.filter(tag => this.state.chosenTags.includes(tag.id) && tag.write.includes(store.getState().user.id)).length > 0;
+    if (!CAN_WRITE) {
+      return (
+        <div >
+            <h1>{this.state.name}</h1>
+
+                  <ButtonGroup>
+                    {
+                      this.state.chosenTags
+                      .map(id => {
+                        return(
+                          <Button key={id}>
+                            {this.findName(id)}
+                          </Button>
+                        );
+                      })
+                    }
+                  </ButtonGroup>
+
+                  <div dangerouslySetInnerHTML={{ __html: this.state.body }} />
+
+                </div>
+      );
+    }
     return (
       <div >
           <FormGroup>

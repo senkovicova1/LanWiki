@@ -8,6 +8,7 @@ import UserEdit from './UserEdit';
 import Login from './Login';
 
 import store from "./redux/Store";
+import firebase from 'firebase';
 import { loginUser } from "./redux/actions/index";
 
 class Sidebar extends Component {
@@ -18,10 +19,27 @@ class Sidebar extends Component {
       tags : [],
       openLogin: false,
       logged: false,
+      uid: null,
       username: "Log in"
     }
     this.logout.bind(this);
+    this.fetch.bind(this);
   }
+
+  fetch(){
+    rebase.get('users', {
+      context: this,
+      withIds: true,
+    }).then((users) => {
+
+        if (this.state.uid !== null){
+          let user = this.state.users.filter(u => u.id === this.state.uid)[0];
+
+          store.dispatch(loginUser(user));
+      }
+    });
+  }
+
 
   componentWillMount(){
     this.ref = rebase.listenToCollection('/tags', {
@@ -30,19 +48,29 @@ class Sidebar extends Component {
       then: tags=>{this.setState({tags})},
     });
 
+/*    this.authSubscription = firebase.auth().onAuthStateChanged((u) => {
+
+      this.setState({
+        uid: firebase.auth().currentUser.uid
+      });
+
+    });*/
+
   }
 
   componentWillUnmount() {
-      rebase.removeBinding(this.ref);
+  //  this.authSubscription();
+    rebase.removeBinding(this.ref);
   }
 
   logged(){
-    this.setState({openLogin: false, logged: true, username: store.getState().user.username});
+    this.setState({openLogin: false, logged: true, username: (store.getState().user ? store.getState().user.username : "Log in")});
   }
 
   logout(){
-    store.dispatch(loginUser({}));
-    this.setState({openLogin: true, logged: false, username: "Log in"});
+    store.dispatch(loginUser({username: "Log in"}));
+    firebase.auth().signOut();
+    this.setState({openLogin: false, logged: false, username: "Log in"});
   }
 
   cancelLog(){
@@ -50,6 +78,7 @@ class Sidebar extends Component {
   }
 
   render() {
+    console.log(store.getState().user);
     return (
       <div className="app">
 
@@ -67,10 +96,14 @@ class Sidebar extends Component {
               key={1000}
               color="info"
               style={{color: 'rgb(0, 123, 255)'}}>
-                {this.state.username}
-              <Link className='link' to={{pathname: `/users`}}  key={0}>
-                <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
-                </Link>
+                {store.getState().user.username}
+
+                { store.getState().user.username !== "Log in"
+                  &&
+                  <Link className='link' to={{pathname: `/users`}}  key={0}>
+                    <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+                  </Link>
+                }
                 { this.state.logged
                   &&
               <Button color="link" onClick={() => this.logout()}> <FontAwesomeIcon icon="sign-out-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
@@ -81,7 +114,9 @@ class Sidebar extends Component {
                     }
           </ListGroupItem>
 
-
+          { //add tag sa ukaze iba prihlasenym pouzivatelom
+            store.getState().user.username !== "Log in"
+            &&
             <Link className='link' to={{pathname: `/tags/add`}}  key={0}>
               { window.location.pathname.includes('/tags/add')
                 &&
@@ -104,7 +139,7 @@ class Sidebar extends Component {
                   </ListGroupItem>
               }
           </Link>
-
+          }
 
             <Link className='link' to={{pathname: `/notes/all`}}  key={1}>
               { window.location.pathname.includes('/notes/all')
@@ -130,7 +165,7 @@ class Sidebar extends Component {
 
           {
               this.state.tags
-              .filter(tag => tag.public || (this.username !== 'Log in' && tag.read.includes(store.getState().user.id)))
+              .filter(tag => tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id)))
                 .map(asset =>
                   {
                     let active = window.location.pathname.includes(asset.id);
@@ -141,8 +176,11 @@ class Sidebar extends Component {
                            key={asset.id}
                            active={true}>
                               <Link className='link' to={{pathname: `/notes/${asset.id}`}} style={{color: 'rgb(255, 255, 255)'}}>    {asset.name} </Link>
-                              <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
-                        </ListGroupItem>
+                                { store.getState().user.username !== "Log in"
+                                  &&
+                                    <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
+                                }
+                       </ListGroupItem>
                       )
                     } else {
                       return (
@@ -151,8 +189,11 @@ class Sidebar extends Component {
                            key={asset.id}
                            active={false}>
                               <Link className='link' to={{pathname: `/notes/${asset.id}`}} >    {asset.name} </Link>
-                              <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
-                        </ListGroupItem>
+                              { store.getState().user.username !== "Log in"
+                                &&
+                                  <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
+                              }
+                       </ListGroupItem>
                       )
                     }
                   })

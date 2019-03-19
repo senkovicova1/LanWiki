@@ -3,6 +3,7 @@ import { Button, FormGroup, Input, Alert } from 'reactstrap';
 //import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
+import firebase from 'firebase';
 
 import store from "./redux/Store";
 import { loginUser } from "./redux/actions/index";
@@ -14,19 +15,36 @@ export default class Login extends Component{
       email: "",
       pass: "",
       invalid: false,
-      users: []
+      users: [],
     }
 
     this.submit.bind(this);
+    this.login.bind(this);
     this.fetch.bind(this);
     this.fetch();
+  }
+
+  login(){
+    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.pass)
+    .then((res)=>{
+
+      let id = firebase.auth().currentUser.uid;
+      let user = this.state.users.filter(u => u.id === id)[0];
+      console.log(user);
+      store.dispatch(loginUser(user));
+
+      if (store.getState().user !== null){
+        this.props.logged();
+      }
+    }).catch(error=>{console.log(error)});
   }
 
   fetch(){
     rebase.get('users', {
       context: this,
       withIds: true,
-    }).then((users) => this.setState({users}))
+    }).then((users) =>
+    this.setState({users}));
   }
 
   submit(){
@@ -56,6 +74,7 @@ export default class Login extends Component{
           <Input
             id="password"
             placeholder="Password"
+            type='password'
             value={this.state.pass}
             onChange={(e) => this.setState({pass: e.target.value})}
           />
@@ -67,7 +86,7 @@ export default class Login extends Component{
           }
         </FormGroup>
 
-        <Button color="success" onClick={() => this.submit()}> Save </Button>
+        <Button color="success" onClick={() => this.login()}> Log In </Button>
         {"                        "}
         <Button color="secondary" onClick={() => this.props.cancel()}> Cancel </Button>
       </div>

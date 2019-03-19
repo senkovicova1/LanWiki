@@ -21,25 +21,66 @@ export default class ListNotes extends Component{
   }
 
   componentWillMount(){
-    this.ref1 = rebase.listenToCollection('/notes', {
+    console.log("here");
+    rebase.listenToCollection('/notes', {
       context: this,
       withIds: true,
       then: notes=> this.setState({notes})
     });
-    this.ref2 = rebase.listenToCollection('/tags', {
+    rebase.listenToCollection('/tags', {
       context: this,
       withIds: true,
       then: tags=> this.setState({tags})
     });
   }
 
-  componentWillUnmount(){
+  /*componentWillUnmount(){
     rebase.removeBinding(this.ref1);
     rebase.removeBinding(this.ref2);
-  }
+  }*/
 
 
   render(){
+/*    if (this.props.match.params.tagID !== 'all'){
+      const isPublic = this.state.tags.length > 0 && this.state.tags.filter(tag => tag.id === this.props.match.params.tagID)[0].public;
+      console.log(isPublic);
+      if (store.getState().user.username === 'Log in' && !isPublic){
+          this.props.history.push(`/notes/all`);
+      }
+    }*/
+
+    let NOTES = [];
+    if (this.state.tags.length > 0) {
+      if (store.getState().user.username !== "Log in") {
+        NOTES = [{id: "add", name:"New note"}]
+                .concat(this.state.notes
+                  .filter((item) => item.name.toLowerCase().includes(this.state.search.toLowerCase()))
+                  .filter((note) => {
+                    let userID = store.getState().user.id;
+                    if (this.props.match.params.tagID === 'all'){
+                      let cond1 = this.state.tags.filter(tag => note.tags.includes(tag.id) && (tag.read.includes(userID) || tag.public)).length > 0;
+                      return cond1;
+                    }
+                      let cond1 = note.tags.includes(this.props.match.params.tagID);
+                      let tag = this.state.tags.filter(t => t.id === this.props.match.params.tagID)[0];
+                      let cond2 = tag.public || tag.read.includes(userID);
+                      return cond1 && cond2;
+                   }))
+       } else {
+         NOTES = this.state.notes
+               .filter((item) => item.name.toLowerCase().includes(this.state.search.toLowerCase()))
+               .filter((note) => {
+                 if (this.props.match.params.tagID === 'all'){
+                   let cond1 = this.state.tags.filter(tag => note.tags.includes(tag.id) && tag.public).length > 0;
+                   return cond1;
+                 }
+                   let cond1 = note.tags.includes(this.props.match.params.tagID);
+                   let tag = this.state.tags.filter(t => t.id === this.props.match.params.tagID)[0];
+                   let cond2 = tag.public;
+                   return cond1 && cond2;
+                })
+       }
+     }
     return (
       <div className="row">
           <div className='flex-1'>
@@ -56,21 +97,10 @@ export default class ListNotes extends Component{
 
             <ListGroup>
               {
-                  [{id: "add", name:"New note"}]
-                  .concat(this.state.notes
-                    .filter((item) => item.name.toLowerCase().includes(this.state.search.toLowerCase()))
-                    .filter((note) => {
-                      let userID = store.getState().user.id;
-                      if (this.props.match.params.tagID === 'all'){
-                        let cond1 = this.state.tags.filter(tag => note.tags.includes(tag.id) && (tag.read.includes(userID) || tag.public)).length > 0;
-                        return cond1;
-                      }
-                        let cond1 = note.tags.includes(this.props.match.params.tagID);
-                        let tag = this.state.tags.filter(t => t.id === this.props.match.params.tagID)[0];
-                        let cond2 = tag.public || tag.read.includes(userID);
-                        return cond1 && cond2;
-                     }))
-                  .map(note => (
+                //opravenie chyby vo filtroch - pri kliknuti na vypisanie notes pod nejakym tagom, sa this.state.tags vratilo do podoby [] z konstruktora a kym sa spustil redner() sa nestihol updatovat - ale fun. render pocitala s tym, ze uz tagz obsahuje
+                this.state.tags.length > 0
+                &&
+                  NOTES.map(note => (
                     <ListGroupItem
                       active={this.props.match.params.noteID ? (this.props.match.params.noteID === note.id) : false}
                       tag="a"

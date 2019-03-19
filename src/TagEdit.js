@@ -3,7 +3,7 @@ import { Button, FormGroup, Label, Input, InputGroup, ListGroup, ListGroupItem, 
 import {hightlightText} from './helperFunctions';
 
 import { rebase } from './index';
-
+import store from "./redux/Store";
 
 export default class TagEdit extends Component{
 
@@ -57,6 +57,11 @@ export default class TagEdit extends Component{
   }
 
   componentWillMount(){
+    //kontrola, ci je user prihlaseny - ak nie je, nezobrazi sa mu edit ale prepne sa na /notes/all
+    
+    if (store.getState().user.username === "Log in"){
+      this.props.history.push(`/notes/all`);
+    }
     this.ref = rebase.listenToCollection('/users', {
       context: this,
       withIds: true,
@@ -241,8 +246,8 @@ export default class TagEdit extends Component{
             </div>
           }
 
-          <Button disabled={this.state.loading || this.state.saving} color="primary" onClick={this.submit.bind(this)} >{!this.state.saving ? "Save":"Saving..."}</Button>
-          <Button disabled={this.state.loading || this.state.saving} color="danger" onClick={this.remove.bind(this)} >Delete</Button>
+          <Button  color="primary" onClick={this.submit.bind(this)} >{!this.state.saving ? "Save":"Saving..."}</Button>
+          <Button  color="danger" onClick={this.remove.bind(this)} >Delete</Button>
 
 
       </div>

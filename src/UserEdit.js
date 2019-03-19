@@ -31,6 +31,12 @@ export default class Note extends Component{
     this.fetchData(this.props.match.params.userID);
   }
 
+  componentWillMount(){
+    if (store.getState().user.username === "Log in"){
+      this.props.history.push(`/notes/all`);
+    }
+  }
+
   fetchData(id){
     if (id === 'add'){
       console.log(true);

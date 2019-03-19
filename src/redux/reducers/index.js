@@ -2,7 +2,7 @@ import { ADD_ARTICLE, LOGIN_USER } from "../constants/action-types";
 
 const initialState = {
   articles: [],
-  user: {},
+  user: {username: "Log in"},
 };
 function rootReducer(state = initialState, action) {
   if (action.type === ADD_ARTICLE) {

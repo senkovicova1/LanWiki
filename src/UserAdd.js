@@ -2,17 +2,13 @@ import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, Alert, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import {isEmail} from './helperFunctions';
+
 import { rebase } from './index';
+import firebase from 'firebase';
 
-import CKEditor from 'ckeditor4-react';
-
-import PictureUpload from './PictureUpload';
-
-/*import { Editor } from 'react-draft-wysiwyg';
-import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import {stateToHTML} from 'draft-js-export-html';*/
-//import MyEditor from './Editor';
+import store from "./redux/Store";
+import { loginUser } from "./redux/actions/index";
 
 export default class Note extends Component{
 
@@ -25,8 +21,46 @@ export default class Note extends Component{
       pass1: "",
       pass2: "",
       active: false,
+      validMail: false,
     }
     this.submit.bind(this);
+    this.register.bind(this);
+  }
+  componentWillMount(){
+    if (store.getState().user.username === "Log in"){
+      this.props.history.push(`/notes/all`);
+    }
+  }
+
+  register(){
+    if (this.state.username.length === 0
+    || this.state.email.length === 0
+    || !this.state.validMail
+    || this.state.pass1.length <= 5
+    || this.state.pass2.length <= 5
+    || this.state.pass1 !== this.state.pass2){
+      return;
+    }
+
+      firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.pass1)
+      .then((user) => {
+
+          store.dispatch(loginUser({user: {username: this.state.username, active: this.state.active, email: this.state.email}}));
+
+          let id = firebase.auth().currentUser.uid;
+
+          rebase.addToCollection(`users`, {username: this.state.username, active: this.state.active, email: this.state.email}
+          , id).then((data) => {
+            this.setState({
+              username: "",
+              email: "",
+              pass1: "",
+              pass2: "",
+              active: false,
+              validMail: false,
+            });
+          });
+      });
   }
 
   submit(){
@@ -40,6 +74,7 @@ export default class Note extends Component{
           pass1: "",
           pass2: "",
           active: false,
+          validMail: false,
         });
       });
     }
@@ -70,17 +105,38 @@ export default class Note extends Component{
               onChange={(e) =>
                 this.setState({username: e.target.value})}
             />
+
+          {(this.state.validMail || this.state.email.length === 0)
+            &&
+              <Input
+                id="email"
+                placeholder="email"
+                value={this.state.email}
+                onChange={(e) =>
+                  this.setState({
+                    email: e.target.value,
+                    validMail: isEmail(e.target.value)})}
+                />
+            }
+
+          { (!this.state.validMail && this.state.email.length > 0)
+          &&
             <Input
               id="email"
               placeholder="email"
               value={this.state.email}
+              invalid
               onChange={(e) =>
-                this.setState({email: e.target.value})}
-            />
+                this.setState({
+                  email: e.target.value,
+                  validMail: isEmail(e.target.value)})}
+              />
+          }
 
           <Input
             id="password"
             placeholder="Password"
+            type="password"
             value={this.state.pass1}
             onChange={(e) =>
               this.setState({pass1: e.target.value})}
@@ -89,10 +145,18 @@ export default class Note extends Component{
           <Input
             id="password"
             placeholder="Repeat password"
+            type="password"
             value={this.state.pass2}
             onChange={(e) =>
               this.setState({pass2: e.target.value})}
           />
+        { (this.state.pass1.length <= 5)
+            &&
+            <Alert color="danger">
+                    Heslo musí mať aspoň 6 znakov.
+            </Alert>
+
+          }
 
           { (this.state.pass1 !== this.state.pass2)
             &&
@@ -103,7 +167,7 @@ export default class Note extends Component{
           }
         </FormGroup>
 
-        <Button color="success" onClick={() => this.submit()}> Save </Button>
+        <Button color="success" onClick={() => this.register()}> Save </Button>
       </div>
     );
   }

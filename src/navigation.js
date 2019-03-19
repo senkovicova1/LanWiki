@@ -15,15 +15,15 @@ export default class Navigation extends Component {
         <div className="row">
         <Sidebar {...this.props}/>
           <div className="flex">
-            <Route exact path='/notes' component={ListNotes} />
-            <Route exact path='/notes/:tagID' component={ListNotes} />
             <Route exact path='/notes/:tagID/:noteID' component={ListNotes} />
+            <Route exact path='/notes/:tagID' component={ListNotes} />
+            <Route exact path='/notes' component={ListNotes} />
 
             <Route exact path='/tags/add' component={TagAdd} />
             <Route exact path='/tags/:tagID' component={TagEdit} />
 
-            <Route exact path='/users' component={ListUsers} />
             <Route exact path='/users/:userID' component={ListUsers} />
+            <Route exact path='/users' component={ListUsers} />
 
           </div>
         </div>

@@ -4,6 +4,7 @@ import {hightlightText} from './helperFunctions';
 
 import { rebase } from './index';
 
+import store from "./redux/Store";
 
 export default class Note extends Component{
 
@@ -28,6 +29,11 @@ export default class Note extends Component{
   }
 
   componentWillMount(){
+    console.log("mounted");
+    if (store.getState().user.username === "Log in"){
+      this.props.history.push(`/notes/all`);
+    }
+
     this.ref = rebase.listenToCollection('/users', {
       context: this,
       withIds: true,
