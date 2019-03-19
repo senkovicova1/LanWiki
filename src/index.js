@@ -10,8 +10,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './scss/index.scss';
 
 import loadIcons from './icons';
-loadIcons();
 
+import store from "./Redux/Store";
+import { addArticle, loginUser } from "./Redux/actions/index";
+loadIcons();
+window.store = store;
+window.addArticle = addArticle;
+window.loginUser = loginUser;
 
 const app = base.initializeApp(config);
 const db = base.firestore(app);

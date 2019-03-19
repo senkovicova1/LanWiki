@@ -5,6 +5,10 @@ import { rebase } from './index';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UserAdd from './UserAdd';
 import UserEdit from './UserEdit';
+import Login from './Login';
+
+import store from "./Redux/Store";
+import { loginUser } from "./Redux/actions/index";
 
 class Sidebar extends Component {
 
@@ -12,177 +16,151 @@ class Sidebar extends Component {
     super(props);
     this.state = {
       tags : [],
-      openAdd: false,
-      openEdit: false,
+     openLogin: false,
+     logged: false,
+     username: "Log in"
+   }
+   this.logout.bind(this);
+ }
 
-      fname: "",
-      lname: "",
-      email: "",
-      pass1: "",
-      pass2: "",
-    }
+ componentWillMount(){
+   this.ref = rebase.listenToCollection('/tags', {
+     context: this,
+     withIds: true,
+     then: tags=>{this.setState({tags})},
+   });
 
-    this.addData.bind(this);
-    this.submit.bind(this);
-  }
+ }
 
-  componentWillMount(){
-    this.ref = rebase.listenToCollection('/tags', {
-      context: this,
-      withIds: true,
-      then: tags=>{this.setState({tags})},
-    });
-  }
+ componentWillUnmount() {
+     rebase.removeBinding(this.ref);
+ }
 
-  componentWillUnmount() {
-      rebase.removeBinding(this.ref);
-  }
+ logged(){
+   this.setState({openLogin: false, logged: true, username: store.getState().user.username});
+ }
 
-  submit(){
-    
-    this.setState({
-      openAdd: false,
-      openEdit: false,
-    });
-  }
+ logout(){
+   store.dispatch(loginUser({}));
+   this.setState({openLogin: true, logged: false, username: "Log in"});
+ }
 
-  addData(value, data){
-    switch (value) {
-      case 'fname':
-        this.setState({fname: data});
-        break;
-      case 'lname':
-        this.setState({lname: data});
-        break;
-      case 'email':
-        this.setState({email: data});
-        break;
-      case 'pass1':
-        this.setState({pass1: data});
-        break;
-      default:
-        this.setState({pass2: data});
-        break;
-    }
-  }
+ cancelLog(){
+   this.setState({openLogin: false, logged: false});
+ }
 
-  render() {
-    console.log(window.location.pathname);
-    return (
-      <div className="app">
+ render() {
+   return (
+     <div className="app">
 
-       <Modal isOpen={this.state.openAdd} >
-          <ModalHeader>Add user</ModalHeader>
+       <Modal isOpen={this.state.openLogin} >
+          <ModalHeader>Login</ModalHeader>
           <ModalBody>
-              <UserAdd addData={() => this.addData()}/>
+              <Login logged={() => this.logged()} cancel={() => this.cancelLog()}/>
           </ModalBody>
-          <ModalFooter>
-            <Button color="success" onClick={() => this.submit()}>Save</Button>{' '}
-            <Button color="secondary" onClick={() => this.setState({openAdd: false})}>Cancel</Button>
-          </ModalFooter>
         </Modal>
 
-        <Modal isOpen={this.state.openEdit} >
-           <ModalHeader>Edit users</ModalHeader>
-           <ModalBody>
-               <UserEdit match={this.props.match} history={this.props.history}/>
-           </ModalBody>
-           <ModalFooter>
-             <Button color="secondary" onClick={() => this.setState({openEdit: false})}>Cancel</Button>
-           </ModalFooter>
-         </Modal>
+     <ListGroup className='sidebar'>
 
-      <ListGroup className='sidebar'>
-
-            <ListGroupItem
-              className='sidebarItem'
-              key={1000}
-              color="info"
-              style={{color: 'rgb(0, 123, 255)'}}>
-                Username
-              <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}} onClick={() => this.setState({openEdit: true})}/></Button>
-              <Button color="link" style={{color: 'rgb(0, 123, 255)'}} onClick={() => this.setState({openAdd: true})}>+</Button>
-            </ListGroupItem>
-
-
-            <Link className='link' to={{pathname: `/tags/add`}}  key={0}>
-              { window.location.pathname.includes('/tags/add')
-                &&
-                  <ListGroupItem
-                    className='sidebarItem'
-                    key={0}
-                    active={true}
-                    style={{color: 'rgb(255, 255, 255)'}}>
-                    Add tag +
-                  </ListGroupItem>
-              }
-
-              { !window.location.pathname.includes('/tags/add')
-                &&
-                  <ListGroupItem
-                    className='sidebarItem'
-                    key={0}
-                    active={false}>
-                    Add tag +
-                  </ListGroupItem>
-              }
-          </Link>
+           <ListGroupItem
+             className='sidebarItem'
+             key={1000}
+             color="info"
+             style={{color: 'rgb(0, 123, 255)'}}>
+               {this.state.username}
+             <Link className='link' to={{pathname: `/users`}}  key={0}>
+               <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+               </Link>
+               { this.state.logged
+                 &&
+             <Button color="link" onClick={() => this.logout()}> <FontAwesomeIcon icon="sign-out-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+                 }
+                 { !this.state.logged
+                   &&
+               <Button color="link" onClick={() => this.setState({openLogin: true})}> <FontAwesomeIcon icon="sign-in-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+                   }
+         </ListGroupItem>
 
 
-            <Link className='link' to={{pathname: `/notes/all`}}  key={1}>
-              { window.location.pathname.includes('/notes/all')
-                &&
-                  <ListGroupItem
-                    className='sidebarItem'
-                    key={1}
-                    active={true}
-                    style={{color: 'rgb(255, 255, 255)'}}>
-                    All
-                  </ListGroupItem>
-              }
-              { !window.location.pathname.includes('/notes/all')
-                &&
-                  <ListGroupItem
-                    className='sidebarItem'
-                    key={1}
-                    active={false}>
-                    All
-                  </ListGroupItem>
-              }
-          </Link>
+           <Link className='link' to={{pathname: `/tags/add`}}  key={0}>
+             { window.location.pathname.includes('/tags/add')
+               &&
+                 <ListGroupItem
+                   className='sidebarItem'
+                   key={0}
+                   active={true}
+                   style={{color: 'rgb(255, 255, 255)'}}>
+                   Add tag +
+                 </ListGroupItem>
+             }
 
-          {
-              this.state.tags
-                .map(asset =>
-                  {
-                    let active = window.location.pathname.includes(asset.id);
-                    if (active) {
-                      return (
-                        <ListGroupItem
-                           className='sidebarItem'
-                           key={asset.id}
-                           active={true}>
-                              <Link className='link' to={{pathname: `/notes/${asset.id}`}} style={{color: 'rgb(255, 255, 255)'}}>    {asset.name} </Link>
-                              <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
-                        </ListGroupItem>
-                      )
-                    } else {
-                      return (
-                        <ListGroupItem
-                           className='sidebarItem'
-                           key={asset.id}
-                           active={false}>
-                              <Link className='link' to={{pathname: `/notes/${asset.id}`}} >    {asset.name} </Link>
-                              <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
-                        </ListGroupItem>
-                      )
-                    }
-                  })
-            }
-          </ListGroup>
-      </div>
-    );
-  }
+             { !window.location.pathname.includes('/tags/add')
+               &&
+                 <ListGroupItem
+                   className='sidebarItem'
+                   key={0}
+                   active={false}>
+                   Add tag +
+                 </ListGroupItem>
+             }
+         </Link>
+
+
+           <Link className='link' to={{pathname: `/notes/all`}}  key={1}>
+             { window.location.pathname.includes('/notes/all')
+               &&
+                 <ListGroupItem
+                   className='sidebarItem'
+                   key={1}
+                   active={true}
+                   style={{color: 'rgb(255, 255, 255)'}}>
+                   All
+                 </ListGroupItem>
+             }
+             { !window.location.pathname.includes('/notes/all')
+               &&
+                 <ListGroupItem
+                   className='sidebarItem'
+                   key={1}
+                   active={false}>
+                   All
+                 </ListGroupItem>
+             }
+         </Link>
+
+         {
+             this.state.tags
+             .filter(tag => tag.public || (this.username !== 'Log in' && tag.read.includes(store.getState().user.id)))
+               .map(asset =>
+                 {
+                   let active = window.location.pathname.includes(asset.id);
+                   if (active) {
+                     return (
+                       <ListGroupItem
+                          className='sidebarItem'
+                          key={asset.id}
+                          active={true}>
+                             <Link className='link' to={{pathname: `/notes/${asset.id}`}} style={{color: 'rgb(255, 255, 255)'}}>    {asset.name} </Link>
+                             <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
+                       </ListGroupItem>
+                     )
+                   } else {
+                     return (
+                       <ListGroupItem
+                          className='sidebarItem'
+                          key={asset.id}
+                          active={false}>
+                             <Link className='link' to={{pathname: `/notes/${asset.id}`}} >    {asset.name} </Link>
+                             <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
+                       </ListGroupItem>
+                     )
+                   }
+                 })
+           }
+         </ListGroup>
+     </div>
+   );
+ }
 }
 
 export default Sidebar;
