@@ -13,8 +13,9 @@ export default class Navigation extends Component {
     return(
       <div>
         <div className="row">
-        <Sidebar {...this.props}/>
+          <Route path='/' component={Sidebar} />
           <div className="flex">
+
             <Route exact path='/notes/:tagID/:noteID' component={ListNotes} />
             <Route exact path='/notes/:tagID' component={ListNotes} />
             <Route exact path='/notes' component={ListNotes} />
@@ -32,3 +33,4 @@ export default class Navigation extends Component {
     )
   }
 }
+//<Sidebar {this.props}/>

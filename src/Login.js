@@ -30,13 +30,15 @@ export default class Login extends Component{
 
       let id = firebase.auth().currentUser.uid;
       let user = this.state.users.filter(u => u.id === id)[0];
-      console.log(user);
+
       store.dispatch(loginUser(user));
+      console.log(store.getState().user);
 
       if (store.getState().user !== null){
         this.props.logged();
       }
-    }).catch(error=>{console.log(error)});
+
+    });
   }
 
   fetch(){

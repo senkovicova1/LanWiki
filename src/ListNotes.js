@@ -21,7 +21,6 @@ export default class ListNotes extends Component{
   }
 
   componentWillMount(){
-    console.log("here");
     rebase.listenToCollection('/notes', {
       context: this,
       withIds: true,
@@ -41,13 +40,6 @@ export default class ListNotes extends Component{
 
 
   render(){
-/*    if (this.props.match.params.tagID !== 'all'){
-      const isPublic = this.state.tags.length > 0 && this.state.tags.filter(tag => tag.id === this.props.match.params.tagID)[0].public;
-      console.log(isPublic);
-      if (store.getState().user.username === 'Log in' && !isPublic){
-          this.props.history.push(`/notes/all`);
-      }
-    }*/
 
     let NOTES = [];
     if (this.state.tags.length > 0) {
@@ -85,15 +77,18 @@ export default class ListNotes extends Component{
       <div className="row">
           <div className='flex-1'>
 
-            <InputGroup>
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <FontAwesomeIcon icon="search" />
-                </InputGroupText>
-              </InputGroupAddon>
+            { NOTES.length > 0
+              &&
+              <InputGroup>
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>
+                    <FontAwesomeIcon icon="search" />
+                  </InputGroupText>
+                </InputGroupAddon>
 
-              <Input placeholder="Search" value={this.state.search} onChange={(e) => this.setState({search: e.target.value})}/>
-            </InputGroup>
+                <Input placeholder="Search" value={this.state.search} onChange={(e) => this.setState({search: e.target.value})}/>
+              </InputGroup>
+            }
 
             <ListGroup>
               {
@@ -119,7 +114,7 @@ export default class ListNotes extends Component{
 
           <div className="flex-2">
             {
-              this.props.match.params.noteID && this.props.match.params.noteID ==='add' && <NoteAdd />
+              this.props.match.params.noteID && this.props.match.params.noteID ==='add' && <NoteAdd match={this.props.match} history={this.props.history}/>
             }
             {
               this.props.match.params.noteID && this.props.match.params.noteID!=='add' && this.state.notes.some((item)=>item.id===this.props.match.params.noteID) && <NoteEdit match={this.props.match} history={this.props.history}/>

@@ -6,6 +6,8 @@ import UserEdit from './UserEdit';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {hightlightText} from './helperFunctions';
 
+import store from "./redux/Store";
+
 export default class ListUsers extends Component{
 
   constructor(props){
@@ -32,6 +34,13 @@ export default class ListUsers extends Component{
 
 
   render(){
+    if (store.getState().user.username === "Log in"){
+      return(
+        <div>
+          K tejto stránke nemáte povolený prístup.
+        </div>
+      );
+    }
     return (
       <div className="row">
           <div className='flex-1'>

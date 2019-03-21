@@ -58,10 +58,10 @@ export default class TagEdit extends Component{
 
   componentWillMount(){
     //kontrola, ci je user prihlaseny - ak nie je, nezobrazi sa mu edit ale prepne sa na /notes/all
-    
-    if (store.getState().user.username === "Log in"){
+
+  /*  if (store.getState().user.username === "Log in"){
       this.props.history.push(`/notes/all`);
-    }
+    }*/
     this.ref = rebase.listenToCollection('/users', {
       context: this,
       withIds: true,
@@ -145,9 +145,19 @@ export default class TagEdit extends Component{
   }
 
   render(){
+    if (store.getState().user.username === "Log in"
+  && this.props.match.params.tagID !== 'add'){
+      return(
+        <div>
+          K tejto stránke nemáte povolený prístup.
+        </div>
+      );
+    }
+
     if (this.props.match.params.tagID === 'add'){
       return (<div></div>)
     }
+
     return (
       <div >
         <h2>Edit tag</h2>

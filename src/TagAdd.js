@@ -29,10 +29,9 @@ export default class Note extends Component{
   }
 
   componentWillMount(){
-    console.log("mounted");
-    if (store.getState().user.username === "Log in"){
+  /*  if (store.getState().user.username === "Log in"){
       this.props.history.push(`/notes/all`);
-    }
+    }*/
 
     this.ref = rebase.listenToCollection('/users', {
       context: this,
@@ -81,13 +80,11 @@ export default class Note extends Component{
 
   changeUserWrite(user){
     if (this.state.write.includes(user)){
-      console.log("ha");
       let newWrite = this.state.write.filter(u => u !== user);
       this.setState({
         write: newWrite,
       });
     } else {
-      console.log("hah");
       let newWrite = [...this.state.write, user];
       this.setState({
         write: newWrite,
@@ -96,6 +93,13 @@ export default class Note extends Component{
   }
 
   render(){
+    if (store.getState().user.username === "Log in"){
+      return(
+        <div>
+          K tejto stránke nemáte povolený prístup.
+        </div>
+      );
+    }
     return (
       <div >
         <h2>Add tag</h2>

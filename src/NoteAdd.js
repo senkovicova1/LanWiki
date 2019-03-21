@@ -2,11 +2,15 @@ import React, { Component } from 'react';
 import { Button, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import NoteEdit from './NoteEdit';
+
 import { rebase } from './index';
 
 import CKEditor from 'ckeditor4-react';
 
 import PictureUpload from './PictureUpload';
+
+import store from "./redux/Store";
 
 /*import { Editor } from 'react-draft-wysiwyg';
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js';
@@ -175,7 +179,18 @@ export default class Note extends Component{
           image: { uploadCallback: this.uploadCallback.bind(this) }
         }*/
 
-          console.log(this.state.chosenTags);
+      let cond1 = store.getState().user.username === "Log in";
+      let cond2 = this.props.match.params.noteID === 'all' || this.state.tags.some(tag => store.getState().user.username !== "Log in" && tag.write.includes(store.getState().user.id));
+
+      console.log('hereeee');
+      if (cond1 || !cond2){
+        return(
+            <div>
+              K tejto stránke nemáte povolený prístup.
+            </div>
+        );
+      }
+
     return (
       <div>
         <FormGroup>
@@ -275,32 +290,34 @@ export default class Note extends Component{
     );
   }
 
+}
+
+
+
 
 
 //for drag and drop draft js
 
 /*onEditorStateChange(value){
-  this.setState({editorState: value});
+this.setState({editorState: value});
 //  console.log(stateToHTML(this.state.editorState.getCurrentContent()));
 }
 
 uploadCallback(file) {
-  let uploadedImages = this.state.uploadedImages;
+let uploadedImages = this.state.uploadedImages;
 
-  const imageObject = {
-       file: file,
-       localSrc: URL.createObjectURL(file),
-     }
-
- uploadedImages.push(imageObject);
-
- this.setState({uploadedImages: uploadedImages});
-
- return new Promise(
-   (resolve, reject) => {
-     resolve({ data: { link: imageObject.localSrc } });
+const imageObject = {
+     file: file,
+     localSrc: URL.createObjectURL(file),
    }
- );
-}*/
 
-}
+uploadedImages.push(imageObject);
+
+this.setState({uploadedImages: uploadedImages});
+
+return new Promise(
+ (resolve, reject) => {
+   resolve({ data: { link: imageObject.localSrc } });
+ }
+);
+}*/

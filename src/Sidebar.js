@@ -22,6 +22,7 @@ class Sidebar extends Component {
       uid: null,
       username: "Log in"
     }
+    this.logged.bind(this);
     this.logout.bind(this);
     this.fetch.bind(this);
   }
@@ -31,7 +32,6 @@ class Sidebar extends Component {
       context: this,
       withIds: true,
     }).then((users) => {
-
         if (this.state.uid !== null){
           let user = this.state.users.filter(u => u.id === this.state.uid)[0];
 
@@ -48,13 +48,11 @@ class Sidebar extends Component {
       then: tags=>{this.setState({tags})},
     });
 
-/*    this.authSubscription = firebase.auth().onAuthStateChanged((u) => {
-
+   this.authSubscription = firebase.auth().onAuthStateChanged((u) => {
       this.setState({
-        uid: firebase.auth().currentUser.uid
+        uid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null
       });
-
-    });*/
+    });
 
   }
 
@@ -65,12 +63,14 @@ class Sidebar extends Component {
 
   logged(){
     this.setState({openLogin: false, logged: true, username: (store.getState().user ? store.getState().user.username : "Log in")});
+    this.props.history.push(`/notes/all`);
   }
 
   logout(){
     store.dispatch(loginUser({username: "Log in"}));
     firebase.auth().signOut();
     this.setState({openLogin: false, logged: false, username: "Log in"});
+    this.props.history.push(`/notes/all`);
   }
 
   cancelLog(){
@@ -78,7 +78,10 @@ class Sidebar extends Component {
   }
 
   render() {
-    console.log(store.getState().user);
+    /*if (this.state.users && this.state.uid !== null && store.getState().user.username === "Log in"){
+      let user = this.state.users.filter(u => u.id === this.state.uid)[0];
+      store.dispatch(loginUser(user));
+  }*/
     return (
       <div className="app">
 

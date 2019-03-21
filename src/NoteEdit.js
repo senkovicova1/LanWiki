@@ -155,6 +155,16 @@ export default class Note extends Component{
   ak user (prihlaseny alebo public) nema opravnenie write na ani jeden z tagov, tak sa mu vypise iba ciste
   */
   render(){
+    if (this.state.tags.length > 0) {
+      const CAN_READ = this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
+
+      if (!CAN_READ){
+      //  this.props.history.push(`/notes/all`);
+        return (<div>
+          K tejto stránke nemáte povolený prístup.
+        </div>);
+      }
+    }
 
     const CAN_WRITE = this.state.tags.length > 0 && this.state.tags.filter(tag => this.state.chosenTags.includes(tag.id) && tag.write.includes(store.getState().user.id)).length > 0;
     if (!CAN_WRITE) {
