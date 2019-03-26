@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import TimeAgo from 'react-timeago'
 
 import { rebase } from './index';
 
@@ -24,6 +26,8 @@ export default class Note extends Component{
       body: "",
       tags: [],
       chosenTags: [],
+      dateCreated: null,
+      lastUpdated: null,
 
       timeout: null,
     }
@@ -52,7 +56,7 @@ export default class Note extends Component{
           rebase.get('/tags', {
             context: this,
             withIds: true,
-          }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, tags, loading:false})  );
+          }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, dateCreated: note.dateCreated, lastUpdated: note.lastUpdated, tags, loading:false})  );
         })
 
   }
@@ -65,12 +69,14 @@ export default class Note extends Component{
   }
 
   submit(){
+    let lastUpd = Date().toLocaleString();
     this.setState({saving:true});
-    rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body, tags: this.state.chosenTags})
+    rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body, tags: this.state.chosenTags, lastUpdated: lastUpd})
     .then(() => {
       this.setState({
         saving:false,
         timeout: null,
+        lastUpdated: lastUpd,
       });
     });
   }
@@ -155,8 +161,9 @@ export default class Note extends Component{
   ak user (prihlaseny alebo public) nema opravnenie write na ani jeden z tagov, tak sa mu vypise iba ciste
   */
   render(){
+
     if (this.state.tags.length > 0) {
-      const CAN_READ = this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
+      const CAN_READ = this.state.chosenTags.length === 0 || this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
 
       if (!CAN_READ){
       //  this.props.history.push(`/notes/all`);
@@ -166,28 +173,33 @@ export default class Note extends Component{
       }
     }
 
-    const CAN_WRITE = this.state.tags.length > 0 && this.state.tags.filter(tag => this.state.chosenTags.includes(tag.id) && tag.write.includes(store.getState().user.id)).length > 0;
+    const CAN_WRITE = (this.state.chosenTags.length === 0 && store.getState().user.username !== "Log in") || (this.state.tags.length > 0 && this.state.tags.filter(tag => this.state.chosenTags.includes(tag.id) && tag.write.includes(store.getState().user.id)).length > 0);
     if (!CAN_WRITE) {
       return (
         <div >
             <h1>{this.state.name}</h1>
 
-                  <ButtonGroup>
-                    {
-                      this.state.chosenTags
-                      .map(id => {
-                        return(
-                          <Button key={id}>
-                            {this.findName(id)}
-                          </Button>
-                        );
-                      })
-                    }
-                  </ButtonGroup>
+            <Row>
+              <Col xs="9" style={{color: 'rgb(180, 180, 180)'}}>{`Date created ${this.state.dateCreated}`}</Col>
+              <Col xs="3" style={{color: 'rgb(180, 180, 180)'}}>Last updated <TimeAgo style={{color: 'rgb(180, 180, 180)'}} date={this.state.lastUpdated} /></Col>
+            </Row>
 
-                  <div dangerouslySetInnerHTML={{ __html: this.state.body }} />
+            <ButtonGroup>
+              {
+                this.state.chosenTags
+                .map(id => {
+                  return(
+                    <Button key={id}>
+                      {this.findName(id)}
+                    </Button>
+                  );
+                })
+              }
+            </ButtonGroup>
 
-                </div>
+            <div dangerouslySetInnerHTML={{ __html: this.state.body }} />
+
+          </div>
       );
     }
     return (
@@ -208,6 +220,12 @@ export default class Note extends Component{
               </InputGroupAddon>
             </InputGroup>
           </FormGroup>
+
+          <Row>
+            <Col xs="9" style={{color: 'rgb(180, 180, 180)'}}>{`Date created ${this.state.dateCreated}`}</Col>
+            <Col xs="3" style={{color: 'rgb(180, 180, 180)'}}>Last updated <TimeAgo style={{color: 'rgb(180, 180, 180)'}} date={this.state.lastUpdated} /></Col>
+          </Row>
+
 
           <FormGroup>
                 <ButtonGroup>
@@ -230,7 +248,7 @@ export default class Note extends Component{
                           </DropdownToggle>
                           <DropdownMenu>
                             {
-                              this.state.tags.map(
+                              this.state.tags.filter(tag => tag.write.includes(store.getState().user.id)).map(
                                 tag => {
                                   if (!this.state.chosenTags.includes(tag.id)){
                                       return (

@@ -74,12 +74,10 @@ export default class Note extends Component{
   }
 
   submit(){
-    console.log(this.state.id);
     this.setState({saving:true});
     if (this.state.id === null){
-      rebase.addToCollection('notes', {name:this.state.name, tags: this.state.chosenTags, body:this.state.body})
+      rebase.addToCollection('notes', {name: "Untitled", tags: [], body: "", lastUpdated: "", dateCreated: ""})
       .then((vec) => {
-        console.log(vec);
         this.setState({
           saving:false,
           timeout: null,

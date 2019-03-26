@@ -99,22 +99,31 @@ class Sidebar extends Component {
               key={1000}
               color="info"
               style={{color: 'rgb(0, 123, 255)'}}>
-                {store.getState().user.username}
+
+                {store.getState().user.username === "Log in"
+                &&
+                <Button color="link" onClick={() => this.setState({openLogin: true})}>
+                  {store.getState().user.username}
+                </Button>
+                }
+
+                {
+                  store.getState().user.username !== "Log in"
+                  &&
+                  store.getState().user.username
+                }
 
                 { store.getState().user.username !== "Log in"
                   &&
                   <Link className='link' to={{pathname: `/users`}}  key={0}>
-                    <Button color="link"> <FontAwesomeIcon icon="cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
+                    <Button color="link"> <FontAwesomeIcon icon="user-cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
                   </Link>
                 }
                 { this.state.logged
                   &&
               <Button color="link" onClick={() => this.logout()}> <FontAwesomeIcon icon="sign-out-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
                   }
-                  { !this.state.logged
-                    &&
-                <Button color="link" onClick={() => this.setState({openLogin: true})}> <FontAwesomeIcon icon="sign-in-alt" style={{color: 'rgb(0, 123, 255)'}}/></Button>
-                    }
+
           </ListGroupItem>
 
           { //add tag sa ukaze iba prihlasenym pouzivatelom
