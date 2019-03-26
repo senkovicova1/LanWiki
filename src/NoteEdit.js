@@ -56,7 +56,7 @@ export default class Note extends Component{
           rebase.get('/tags', {
             context: this,
             withIds: true,
-          }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, dateCreated: note.dateCreated, lastUpdated: note.lastUpdated, tags, loading:false})  );
+          }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, dateCreated: note.dateCreated.toLocaleString(), lastUpdated: note.lastUpdated, tags, loading:false})  );
         })
 
   }

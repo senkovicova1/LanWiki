@@ -21,6 +21,7 @@ export default class ListNotes extends Component{
     }
 
     this.createNew.bind(this);
+    this.compare.bind(this);
   }
 
   componentWillMount(){
@@ -43,11 +44,25 @@ export default class ListNotes extends Component{
 
   createNew(){
     let date = new Date();
-    rebase.addToCollection('notes', {name: "Untitled", tags: (this.props.match.params.tagID !== "all" ? [this.props.match.params.tagID] : []), body: "", lastUpdated: Date().toLocaleString(), dateCreated: date.getDate() + "." + date.getMonth() + "." + date.getFullYear()})
+    rebase.addToCollection('notes',
+    {name: "Untitled",
+      tags: (this.props.match.params.tagID !== "all" ? [this.props.match.params.tagID] : []),
+      body: "",
+      lastUpdated: Date().toLocaleString(),
+      dateCreated: Date().toLocaleString()
+    })
     .then((note) => {
       this.props.history.push(`/notes/${this.props.match.params.tagID}/${note.id}`);
     });
   }
+
+  compare(a,b) {
+  if (a.name < b.name)
+    return -1;
+  if (a.name > b.name)
+    return 1;
+  return 0;
+}
 
   render(){
 
@@ -82,7 +97,10 @@ export default class ListNotes extends Component{
                    return cond1 && cond2;
                 })
        }
-       ORDERRED_NOTES = NOTES.sort((a, b) => new Date(b.lastUpdated)- new Date(a.lastUpdated));
+    //   ORDERRED_NOTES = NOTES.sort(this.compare);
+  //     ORDERRED_NOTES = NOTES.sort((a, b) => new Date(b.lastUpdated)- new Date(a.lastUpdated));
+       ORDERRED_NOTES = NOTES.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+       console.log(NOTES);
        console.log(ORDERRED_NOTES);
      }
     return (
@@ -131,7 +149,7 @@ export default class ListNotes extends Component{
                       >
                       <Row>
                         <Col xs="9">{hightlightText(note.name, this.state.search, '#00FF04')}</Col>
-                        <Col xs="3"><small style={{color: 'rgb(180, 180, 180)'}}><TimeAgo date={note.lastUpdated} /></small></Col>
+                        <Col xs="3"><small style={{color: 'rgb(180, 180, 180)'}}><TimeAgo date={note.lastUpdated} minPeriod={300}/></small></Col>
                       </Row>
                       <Row>
                         <Col><small style={{color: 'rgb(180, 180, 180)'}}>{this.state.tags.filter(tag =>
