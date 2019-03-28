@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Progress, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import TimeAgo from 'react-timeago'
@@ -29,6 +29,8 @@ export default class Note extends Component{
       dateCreated: null,
       lastUpdated: null,
 
+      value: 0,
+
       timeout: null,
     }
 
@@ -47,10 +49,16 @@ export default class Note extends Component{
     this.toggleModal.bind(this);
     this.submit.bind(this);
     this.fetchData.bind(this);
+    this.setState({
+      value: 10,
+    });
     this.fetchData(this.props.match.params.noteID);
   }
 
   fetchData(id){
+    this.setState({
+      value: 25
+    });
     rebase.get('notes/' + id, {
       context: this,
     }).then((note) =>
@@ -58,29 +66,34 @@ export default class Note extends Component{
           rebase.get('/tags', {
             context: this,
             withIds: true,
-          }).then((tags) => this.setState({name: note.name, body: note.body, chosenTags: note.tags, dateCreated: note.dateCreated.toLocaleString(), lastUpdated: note.lastUpdated, tags, loading:false})  );
+          }).then((tags) => this.setState({value: 100, name: note.name, body: note.body, chosenTags: note.tags, dateCreated: note.dateCreated.toLocaleString(), lastUpdated: note.lastUpdated, tags, loading:false})  );
         })
-
   }
 
   componentWillReceiveProps(props){
     if(this.props.match.params.noteID!==props.match.params.noteID){
-      this.setState({loading:true});
+      this.setState({loading:true, value: 0});
       this.fetchData(props.match.params.noteID);
     }
   }
 
   submit(){
-    let lastUpd = Date().toLocaleString();
-    this.setState({saving:true});
-    rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body, tags: this.state.chosenTags, lastUpdated: lastUpd})
-    .then(() => {
-      this.setState({
-        saving:false,
-        timeout: null,
-        lastUpdated: lastUpd,
-      });
-    });
+    if (this.state.timeout !== null){
+        this.setState({
+          value: 0,
+        })
+        let lastUpd = Date().toLocaleString();
+        this.setState({saving:true, value: 45});
+        rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body, tags: this.state.chosenTags, lastUpdated: lastUpd})
+        .then(() => {
+          this.setState({
+            saving:false,
+            value: 100,
+            timeout: null,
+            lastUpdated: lastUpd,
+          });
+        });
+    }
   }
 
   remove(){
@@ -154,8 +167,9 @@ export default class Note extends Component{
   startTimeout(){
     if (this.state.timeout === null){
       this.setState({
+        value: 0,
         timeout: setTimeout(this.submit.bind(this), 250),
-      })
+      });
     }
   }
 
@@ -173,6 +187,11 @@ export default class Note extends Component{
   ak user (prihlaseny alebo public) nema opravnenie write na ani jeden z tagov, tak sa mu vypise iba ciste
   */
   render(){
+  /*  if (this.state.value < 100 && this.state.name.length > 0){
+      this.setState({
+        value: 100,
+      });
+    }*/
 
     if (this.state.tags.length > 0) {
       const CAN_READ = store.getState().user.showContent || this.state.chosenTags.length === 0 || this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
@@ -189,6 +208,7 @@ export default class Note extends Component{
     if (!CAN_WRITE) {
       return (
         <div >
+          <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
             <h1>{this.state.name}</h1>
 
             <Row>
@@ -216,6 +236,9 @@ export default class Note extends Component{
     }
     return (
       <div >
+
+        <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
+
           <FormGroup>
             <InputGroup>
               <Input

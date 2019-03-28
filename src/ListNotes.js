@@ -114,8 +114,8 @@ export default class ListNotes extends Component{
     //   ORDERRED_NOTES = NOTES.sort(this.compare);
   //     ORDERRED_NOTES = NOTES.sort((a, b) => new Date(b.lastUpdated)- new Date(a.lastUpdated));
        ORDERRED_NOTES = NOTES.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
-       console.log(NOTES);
-       console.log(ORDERRED_NOTES);
+  //     console.log(NOTES);
+  //     console.log(ORDERRED_NOTES);
      }
     return (
       <div className="row">
