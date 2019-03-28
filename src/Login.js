@@ -16,6 +16,7 @@ export default class Login extends Component{
       pass: "",
       invalid: false,
       users: [],
+      errorMessage: "",
     }
 
     this.submit.bind(this);
@@ -25,20 +26,29 @@ export default class Login extends Component{
   }
 
   login(){
-    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.pass)
-    .then((res)=>{
+    let canSignIn = this.state.users.filter(u => u.email === this.state.email)[0].active;
 
-      let id = firebase.auth().currentUser.uid;
-      let user = this.state.users.filter(u => u.id === id)[0];
+    if (canSignIn){
 
-      store.dispatch(loginUser(user));
-      console.log(store.getState().user);
+      firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.pass)
+      .then((res)=>{
 
-      if (store.getState().user !== null){
-        this.props.logged();
-      }
+        let id = firebase.auth().currentUser.uid;
+        let user = this.state.users.filter(u => u.id === id)[0];
 
-    });
+        store.dispatch(loginUser(user));
+        console.log(store.getState().user);
+
+        if (store.getState().user !== null){
+          this.props.logged();
+        }
+
+      });
+    } else {
+      this.setState({
+        errorMessage: "Tento používateľ nie je aktívny."
+      })
+    }
   }
 
   fetch(){
@@ -80,10 +90,10 @@ export default class Login extends Component{
             value={this.state.pass}
             onChange={(e) => this.setState({pass: e.target.value})}
           />
-        { (this.state.invalid)
+        { (this.state.errorMessage)
             &&
             <Alert color="danger">
-                Chybné meno alebo heslo.
+                {this.state.errorMessage}
             </Alert>
           }
         </FormGroup>

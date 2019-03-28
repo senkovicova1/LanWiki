@@ -20,6 +20,8 @@ export default class Note extends Component{
       pass1: "",
       pass2: "",
       active: false,
+      showContent: false,
+      editContent: false,
     }
 
     if (this.props.match.params.userID === 'add'){
@@ -45,7 +47,7 @@ export default class Note extends Component{
     rebase.get('users/' + id, {
       context: this,
     }).then((user) =>
-      this.setState({username: user.username, email: user.email, active: user.active}));
+      this.setState({username: user.username, email: user.email, active: user.active, editUsers: user.editUsers, showContent: user.showContent, editContent: user.editContent}));
   }
 
   componentWillReceiveProps(props){
@@ -57,9 +59,10 @@ export default class Note extends Component{
 
   submit(){
     this.setState({saving:true});
-    let data = {username:this.state.username, email:this.state.email, active: this.state.active};
+    let data = {username:this.state.username, email:this.state.email, active: this.state.active, showContent: this.state.showContent, editContent: this.state.editContent,};
+
     if (this.state.pass1 === this.state.pass2 && this.state.pass1 !== ""){
-      data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active};
+      data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active, showContent: this.state.showContent, editContent: this.state.editContent,};
     }
 
     rebase.updateDoc('/users/'+this.props.match.params.userID, data)
@@ -92,6 +95,39 @@ export default class Note extends Component{
               onChange={(e) => this.setState({active: e.target.chec})}
               />{' '}
             Active
+          </Label>
+        </FormGroup>
+
+          <FormGroup check>
+          <Label check>
+            <Input
+              type="checkbox"
+              checked={this.state.editUsers}
+              onChange={(e) => this.setState({editUsers: e.target.chec})}
+              />{' '}
+            Edit users
+          </Label>
+        </FormGroup>
+
+          <FormGroup check>
+          <Label check>
+            <Input
+              type="checkbox"
+              checked={this.state.showContent}
+              onChange={(e) => this.setState({showContent: e.target.chec})}
+              />{' '}
+            See all tags and notes
+          </Label>
+        </FormGroup>
+
+          <FormGroup check>
+          <Label check>
+            <Input
+              type="checkbox"
+              checked={this.state.editContent}
+              onChange={(e) => this.setState({editContent: e.target.chec})}
+              />{' '}
+            See all tags and notes
           </Label>
         </FormGroup>
 

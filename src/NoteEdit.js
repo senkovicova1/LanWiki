@@ -37,6 +37,8 @@ export default class Note extends Component{
 
     this.startTimeout.bind(this);
 
+    this.niceDate.bind(this);
+
     this.changeName.bind(this);
     this.findName.bind(this);
     this.addTag.bind(this);
@@ -157,13 +159,23 @@ export default class Note extends Component{
     }
   }
 
+  niceDate(uglyDate){
+    if (uglyDate){
+      let arr = uglyDate.split(" ");
+      let niceDate = arr[2] + " " + arr[1] + " " + arr[3] + "  " + arr[4];
+      return niceDate;
+    } else {
+      return "no date";
+    }
+  }
+
   /*
   ak user (prihlaseny alebo public) nema opravnenie write na ani jeden z tagov, tak sa mu vypise iba ciste
   */
   render(){
 
     if (this.state.tags.length > 0) {
-      const CAN_READ = this.state.chosenTags.length === 0 || this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
+      const CAN_READ = store.getState().user.showContent || this.state.chosenTags.length === 0 || this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
 
       if (!CAN_READ){
       //  this.props.history.push(`/notes/all`);
@@ -173,14 +185,14 @@ export default class Note extends Component{
       }
     }
 
-    const CAN_WRITE = (this.state.chosenTags.length === 0 && store.getState().user.username !== "Log in") || (this.state.tags.length > 0 && this.state.tags.filter(tag => this.state.chosenTags.includes(tag.id) && tag.write.includes(store.getState().user.id)).length > 0);
+    const CAN_WRITE = store.getState().user.editContent || (this.state.chosenTags.length === 0 && store.getState().user.username !== "Log in") || (this.state.tags.length > 0 && this.state.tags.filter(tag => this.state.chosenTags.includes(tag.id) && tag.write.includes(store.getState().user.id)).length > 0);
     if (!CAN_WRITE) {
       return (
         <div >
             <h1>{this.state.name}</h1>
 
             <Row>
-              <Col xs="9" style={{color: 'rgb(180, 180, 180)'}}>{`Date created ${this.state.dateCreated}`}</Col>
+              <Col xs="9" style={{color: 'rgb(180, 180, 180)'}}>{`Date created ${this.niceDate(this.state.dateCreated)}`}</Col>
               <Col xs="3" style={{color: 'rgb(180, 180, 180)'}}>Last updated <TimeAgo style={{color: 'rgb(180, 180, 180)'}} date={this.state.lastUpdated} /></Col>
             </Row>
 
@@ -222,7 +234,7 @@ export default class Note extends Component{
           </FormGroup>
 
           <Row>
-            <Col xs="9" style={{color: 'rgb(180, 180, 180)'}}>{`Date created ${this.state.dateCreated}`}</Col>
+            <Col xs="9" style={{color: 'rgb(180, 180, 180)'}}>{`Date created ${this.niceDate(this.state.dateCreated)}`}</Col>
             <Col xs="3" style={{color: 'rgb(180, 180, 180)'}}>Last updated <TimeAgo style={{color: 'rgb(180, 180, 180)'}} date={this.state.lastUpdated} /></Col>
           </Row>
 
@@ -248,7 +260,7 @@ export default class Note extends Component{
                           </DropdownToggle>
                           <DropdownMenu>
                             {
-                              this.state.tags.filter(tag => tag.write.includes(store.getState().user.id)).map(
+                              this.state.tags.filter(tag => tag.write.includes(store.getState().user.id) || store.getState().user.showContent).map(
                                 tag => {
                                   if (!this.state.chosenTags.includes(tag.id)){
                                       return (

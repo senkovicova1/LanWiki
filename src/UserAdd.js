@@ -21,6 +21,9 @@ export default class Note extends Component{
       pass1: "",
       pass2: "",
       active: false,
+      editUsers: false,
+      showContent: false,
+      editContent: false,
       validMail: false,
     }
     this.submit.bind(this);
@@ -57,6 +60,8 @@ export default class Note extends Component{
               pass1: "",
               pass2: "",
               active: false,
+              showContent: false,
+              editContent: false,
               validMail: false,
             });
           });
@@ -95,6 +100,39 @@ export default class Note extends Component{
                 onChange={(e) => this.setState({active: e.target.checked})}
                 />{' '}
               Active
+            </Label>
+          </FormGroup>
+
+            <FormGroup check>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={this.state.editUsers}
+                onChange={(e) => this.setState({editUsers: e.target.chec})}
+                />{' '}
+              Edit users
+            </Label>
+          </FormGroup>
+
+            <FormGroup check>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={this.state.showContent}
+                onChange={(e) => this.setState({showContent: e.target.chec})}
+                />{' '}
+              See all tags and notes
+            </Label>
+          </FormGroup>
+
+            <FormGroup check>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={this.state.editContent}
+                onChange={(e) => this.setState({editContent: e.target.chec})}
+                />{' '}
+              See all tags and notes
             </Label>
           </FormGroup>
 

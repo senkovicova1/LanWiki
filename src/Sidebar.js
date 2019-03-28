@@ -113,7 +113,7 @@ class Sidebar extends Component {
                   store.getState().user.username
                 }
 
-                { store.getState().user.username !== "Log in"
+                { (store.getState().user.username !== "Log in" && store.getState().user.editUsers)
                   &&
                   <Link className='link' to={{pathname: `/users`}}  key={0}>
                     <Button color="link"> <FontAwesomeIcon icon="user-cog" style={{color: 'rgb(0, 123, 255)'}}/></Button>
@@ -177,7 +177,7 @@ class Sidebar extends Component {
 
           {
               this.state.tags
-              .filter(tag => tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id)))
+              .filter(tag => tag.public || (store.getState().user.username !== 'Log in' && (tag.read.includes(store.getState().user.id) || store.getState().user.showContent)))
                 .map(asset =>
                   {
                     let active = window.location.pathname.includes(asset.id);
@@ -192,6 +192,10 @@ class Sidebar extends Component {
                                   &&
                                     <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
                                 }
+                                {(!asset.read.includes(store.getState().user.id) && store.getState().user.showContent)
+                                  &&
+                                  <FontAwesomeIcon icon="star" style={{color: 'rgb(255, 255, 255)'}}/>
+                                }
                        </ListGroupItem>
                       )
                     } else {
@@ -204,6 +208,10 @@ class Sidebar extends Component {
                               { store.getState().user.username !== "Log in"
                                 &&
                                   <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
+                              }
+                              {(!asset.read.includes(store.getState().user.id) && store.getState().user.showContent)
+                                &&
+                                <Link className='link' to={{pathname: `/notes/${asset.id}`}} >  <FontAwesomeIcon icon="star" /></Link>
                               }
                        </ListGroupItem>
                       )
