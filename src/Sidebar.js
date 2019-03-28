@@ -188,7 +188,7 @@ class Sidebar extends Component {
                            key={asset.id}
                            active={true}>
                               <Link className='link' to={{pathname: `/notes/${asset.id}`}} style={{color: 'rgb(255, 255, 255)'}}>    {asset.name} </Link>
-                                { store.getState().user.username !== "Log in"
+                                { (store.getState().user.username !== "Log in" && store.getState().user.editContent)
                                   &&
                                     <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
                                 }
@@ -205,7 +205,7 @@ class Sidebar extends Component {
                            key={asset.id}
                            active={false}>
                               <Link className='link' to={{pathname: `/notes/${asset.id}`}} >    {asset.name} </Link>
-                              { store.getState().user.username !== "Log in"
+                              { (store.getState().user.username !== "Log in" && store.getState().user.editContent)
                                 &&
                                   <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
                               }

@@ -145,8 +145,8 @@ export default class TagEdit extends Component{
   }
 
   render(){
-    if (store.getState().user.username === "Log in"
-  && this.props.match.params.tagID !== 'add'){
+    if (!store.getState().user.editContent || (store.getState().user.username === "Log in"
+  && this.props.match.params.tagID !== 'add')){
       return(
         <div>
           K tejto stránke nemáte povolený prístup.

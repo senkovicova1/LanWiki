@@ -93,7 +93,7 @@ export default class Note extends Component{
   }
 
   render(){
-    if (store.getState().user.username === "Log in"){
+    if (store.getState().user.username === "Log in" || !store.getState().user.editContent){
       return(
         <div>
           K tejto stránke nemáte povolený prístup.
