@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, Alert, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Progress, FormGroup, Label, Input, Alert} from 'reactstrap';
 
 import {isEmail} from './helperFunctions';
 
@@ -25,14 +24,10 @@ export default class Note extends Component{
       showContent: false,
       editContent: false,
       validMail: false,
+
+      value: 100,
     }
-    this.submit.bind(this);
     this.register.bind(this);
-  }
-  componentWillMount(){
-    if (store.getState().user.username === "Log in"){
-      this.props.history.push(`/notes/all`);
-    }
   }
 
   register(){
@@ -44,15 +39,14 @@ export default class Note extends Component{
     || this.state.pass1 !== this.state.pass2){
       return;
     }
+    this.setState({value: 0});
 
       firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.pass1)
       .then((user) => {
 
-          store.dispatch(loginUser({user: {username: this.state.username, active: this.state.active, email: this.state.email}}));
-
           let id = firebase.auth().currentUser.uid;
 
-          rebase.addToCollection(`users`, {username: this.state.username, active: this.state.active, email: this.state.email}
+          rebase.addToCollection(`users`, {username: this.state.username, active: this.state.active, email: this.state.email, editUsers: this.state.editUsers, showContent: this.state.showContent, editContent: this.state.editContent}
           , id).then((data) => {
             this.setState({
               username: "",
@@ -63,31 +57,25 @@ export default class Note extends Component{
               showContent: false,
               editContent: false,
               validMail: false,
+              value: 100,
             });
+            this.props.history.push(`/users/${id}`);
           });
       });
   }
 
-  submit(){
-    if (this.state.pass1 === this.state.pass2 && this.state.pass1 !== ""){
-      let data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active};
-      rebase.addToCollection('/users', data)
-      .then(() => {
-        this.setState({
-          username: "",
-          email: "",
-          pass1: "",
-          pass2: "",
-          active: false,
-          validMail: false,
-        });
-      });
-    }
-  }
-
   render(){
+    if (store.getState().user.username === "Log in" || !store.getState().user.editUsers){
+      return(
+        <div>
+          K tejto stránke nemáte povolený prístup.
+        </div>
+      );
+    }
     return (
       <div>
+        <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
+
         <h2>Add new user</h2>
 
         <FormGroup>
@@ -108,7 +96,7 @@ export default class Note extends Component{
               <Input
                 type="checkbox"
                 checked={this.state.editUsers}
-                onChange={(e) => this.setState({editUsers: e.target.chec})}
+                onChange={(e) => this.setState({editUsers: e.target.checked})}
                 />{' '}
               Edit users
             </Label>
@@ -119,7 +107,7 @@ export default class Note extends Component{
               <Input
                 type="checkbox"
                 checked={this.state.showContent}
-                onChange={(e) => this.setState({showContent: e.target.chec})}
+                onChange={(e) => this.setState({showContent: e.target.checked})}
                 />{' '}
               See all tags and notes
             </Label>
@@ -130,9 +118,9 @@ export default class Note extends Component{
               <Input
                 type="checkbox"
                 checked={this.state.editContent}
-                onChange={(e) => this.setState({editContent: e.target.chec})}
+                onChange={(e) => this.setState({editContent: e.target.checked})}
                 />{' '}
-              See all tags and notes
+              Edit all tags and notes
             </Label>
           </FormGroup>
 

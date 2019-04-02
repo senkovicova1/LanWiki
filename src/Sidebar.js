@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ListGroup, ListGroupItem, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { ListGroup, ListGroupItem, Progress, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { rebase } from './index';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,8 +20,14 @@ class Sidebar extends Component {
       openLogin: false,
       logged: false,
       uid: null,
-      username: "Log in"
+      username: "Log in",
+      unsubscribe: null,
+
+      value: 0,
+      pointless: 42,
     }
+
+    this.handleChange.bind(this);
     this.logged.bind(this);
     this.logout.bind(this);
     this.fetch.bind(this);
@@ -36,41 +42,74 @@ class Sidebar extends Component {
           let user = this.state.users.filter(u => u.id === this.state.uid)[0];
 
           store.dispatch(loginUser(user));
+
+          this.setState({
+            value: 100,
+          });
       }
     });
   }
 
 
+
   componentWillMount(){
+    this.setState({
+      value: 0,
+    });
+    const unsub = store.subscribe(this.handleChange.bind(this));
     this.ref = rebase.listenToCollection('/tags', {
       context: this,
       withIds: true,
-      then: tags=>{this.setState({tags})},
+      then: tags=>{this.setState({tags, unsubscribe: unsub})},
     });
 
    this.authSubscription = firebase.auth().onAuthStateChanged((u) => {
       this.setState({
-        uid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null
+        uid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null,
+        value: 100,
       });
     });
 
   }
 
-  componentWillUnmount() {
+  componentWillUnmount() {;
+    this.state.unsubscribe();
   //  this.authSubscription();
     rebase.removeBinding(this.ref);
   }
 
+  handleChange(){
+    this.setState({
+      pointless: 43,
+    });
+  }
+
   logged(){
-    this.setState({openLogin: false, logged: true, username: (store.getState().user ? store.getState().user.username : "Log in")});
+    console.log("hello");
+    this.setState({
+      openLogin: false,
+      logged: true,
+      username: (store.getState().user ? store.getState().user.username : "Log in"),
+      value: 100,
+    });
     this.props.history.push(`/notes/all`);
   }
 
   logout(){
-    store.dispatch(loginUser({username: "Log in"}));
-    firebase.auth().signOut();
-    this.setState({openLogin: false, logged: false, username: "Log in"});
-    this.props.history.push(`/notes/all`);
+    this.setState({
+      value: 0,
+    });
+
+    firebase.auth().signOut().then(() => {
+      store.dispatch(loginUser({username: "Log in"}));
+      this.setState({
+        openLogin: false,
+        logged: false,
+        username: "Log in",
+        value: 100,
+      });
+      this.props.history.push(`/notes/all`);
+    });
   }
 
   cancelLog(){
@@ -84,6 +123,7 @@ class Sidebar extends Component {
   }*/
     return (
       <div className="app">
+        <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
 
         <Modal isOpen={this.state.openLogin} >
            <ModalHeader>Login</ModalHeader>
@@ -102,7 +142,7 @@ class Sidebar extends Component {
 
                 {store.getState().user.username === "Log in"
                 &&
-                <Button color="link" onClick={() => this.setState({openLogin: true})}>
+                <Button color="link" onClick={() => this.setState({openLogin: true, value: 0})}>
                   {store.getState().user.username}
                 </Button>
                 }
@@ -127,7 +167,7 @@ class Sidebar extends Component {
           </ListGroupItem>
 
           { //add tag sa ukaze iba prihlasenym pouzivatelom
-            store.getState().user.username !== "Log in"
+            (store.getState().user.username !== "Log in" && store.getState().user.editContent)
             &&
             <Link className='link' to={{pathname: `/tags/add`}}  key={0}>
               { window.location.pathname.includes('/tags/add')

@@ -49,16 +49,10 @@ export default class Note extends Component{
     this.toggleModal.bind(this);
     this.submit.bind(this);
     this.fetchData.bind(this);
-    this.setState({
-      value: 10,
-    });
     this.fetchData(this.props.match.params.noteID);
   }
 
   fetchData(id){
-    this.setState({
-      value: 25
-    });
     rebase.get('notes/' + id, {
       context: this,
     }).then((note) =>
@@ -79,11 +73,8 @@ export default class Note extends Component{
 
   submit(){
     if (this.state.timeout !== null){
-        this.setState({
-          value: 0,
-        })
         let lastUpd = Date().toLocaleString();
-        this.setState({saving:true, value: 45});
+  //      this.setState({saving:true, value: 45});
         rebase.updateDoc('/notes/'+this.props.match.params.noteID, {name:this.state.name, body:this.state.body, tags: this.state.chosenTags, lastUpdated: lastUpd})
         .then(() => {
           this.setState({
@@ -187,6 +178,7 @@ export default class Note extends Component{
   ak user (prihlaseny alebo public) nema opravnenie write na ani jeden z tagov, tak sa mu vypise iba ciste
   */
   render(){
+    console.log(this.state.value);
   /*  if (this.state.value < 100 && this.state.name.length > 0){
       this.setState({
         value: 100,

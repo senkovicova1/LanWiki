@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ListGroup, ListGroupItem, InputGroup, InputGroupAddon, InputGroupText, Input, Button, Row, Col  } from 'reactstrap';
+import { ListGroup, ListGroupItem, Progress, InputGroup, InputGroupAddon, InputGroupText, Input, Button, Row, Col  } from 'reactstrap';
 import TimeAgo from 'react-timeago'
 import { rebase } from './index';
 //import NoteAdd from './NoteAdd';
@@ -18,6 +18,8 @@ export default class ListNotes extends Component{
       notes: [],
       search: "",
       tags: [],
+
+      value: 0,
     }
 
     this.createNew.bind(this);
@@ -25,15 +27,18 @@ export default class ListNotes extends Component{
   }
 
   componentWillMount(){
+    this.setState({
+      value: 0,
+    });
     rebase.listenToCollection('/notes', {
       context: this,
       withIds: true,
-      then: notes=> this.setState({notes})
+      then: notes=> this.setState({notes, value: 100})
     });
     rebase.listenToCollection('/tags', {
       context: this,
       withIds: true,
-      then: tags=> this.setState({tags})
+      then: tags=> this.setState({tags, value: 100})
     });
   }
 
@@ -57,12 +62,12 @@ export default class ListNotes extends Component{
   }
 
   compare(a,b) {
-  if (a.name < b.name)
-    return -1;
-  if (a.name > b.name)
-    return 1;
-  return 0;
-}
+    if (a.name < b.name)
+      return -1;
+    if (a.name > b.name)
+      return 1;
+    return 0;
+  }
 
   render(){
 
@@ -120,6 +125,7 @@ export default class ListNotes extends Component{
     return (
       <div className="row">
           <div className='flex-1'>
+            <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
 
             { ORDERRED_NOTES.length > 0
               &&

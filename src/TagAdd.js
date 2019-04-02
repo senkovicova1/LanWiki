@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, InputGroup, ListGroup, ListGroupItem, Table } from 'reactstrap';
+import { Button, FormGroup, Progress, Label, Input, InputGroup, ListGroup, ListGroupItem, Table } from 'reactstrap';
 import {hightlightText} from './helperFunctions';
 
 import { rebase } from './index';
@@ -21,6 +21,8 @@ export default class Note extends Component{
       write: [],
       users: [],
       search: "",
+
+      value: 100,
     }
 
     this.addUser.bind(this);
@@ -41,7 +43,7 @@ export default class Note extends Component{
   }
 
   submit(){
-    this.setState({saving:true});
+    this.setState({value: 0});
     let newRead = this.state.read.map(user => user.id);
     let newWrite = this.state.write.map(user => user.id);
     rebase.addToCollection('/tags', {name:this.state.name, body:this.state.body, read: newRead, write: newWrite, public: this.state.public, active: this.state.active})
@@ -55,6 +57,7 @@ export default class Note extends Component{
         write: [],
         public: false,
         active: false,
+        value: 100
       });
     });
   }
@@ -102,6 +105,8 @@ export default class Note extends Component{
     }
     return (
       <div >
+        <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
+
         <h2>Add tag</h2>
 
         <FormGroup check>

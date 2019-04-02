@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText, Alert, ButtonDropdown, ButtonGroup, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, FormGroup, Progress, Label, Input, Alert, } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { rebase } from './index';
 
 import store from "./redux/Store";
+import { loginUser } from "./redux/actions/index";
 
 export default class Note extends Component{
 
@@ -21,11 +22,10 @@ export default class Note extends Component{
       pass2: "",
       active: false,
       showContent: false,
+      editUsers: false,
       editContent: false,
-    }
 
-    if (this.props.match.params.userID === 'add'){
-      return;
+      value: 0,
     }
 
     this.submit.bind(this);
@@ -33,42 +33,51 @@ export default class Note extends Component{
     this.fetchData(this.props.match.params.userID);
   }
 
-  componentWillMount(){
-    if (store.getState().user.username === "Log in"){
-      this.props.history.push(`/notes/all`);
-    }
-  }
 
   fetchData(id){
     if (id === 'add'){
-      console.log(true);
       return;
     }
     rebase.get('users/' + id, {
       context: this,
     }).then((user) =>
-      this.setState({username: user.username, email: user.email, active: user.active, editUsers: user.editUsers, showContent: user.showContent, editContent: user.editContent}));
+      this.setState({
+        username: user.username,
+        email: user.email,
+        active: user.active,
+        editUsers: user.editUsers,
+        showContent: user.showContent,
+        editContent: user.editContent,
+        value: 100
+      }));
   }
 
   componentWillReceiveProps(props){
     if(this.props.match.params.userID!==props.match.params.userID){
-      this.setState({loading:true});
+      this.setState({lvalue: 0});
       this.fetchData(props.match.params.userID);
     }
   }
 
   submit(){
-    this.setState({saving:true});
-    let data = {username:this.state.username, email:this.state.email, active: this.state.active, showContent: this.state.showContent, editContent: this.state.editContent,};
-
-    if (this.state.pass1 === this.state.pass2 && this.state.pass1 !== ""){
-      data = {username:this.state.username, email:this.state.email, password: this.state.pass1, active: this.state.active, showContent: this.state.showContent, editContent: this.state.editContent,};
-    }
+    this.setState({value: 0});
+    let data = {username:this.state.username, email:this.state.email, active: this.state.active, editUsers: this.state.editUsers, showContent: this.state.showContent, editContent: this.state.editContent,};
 
     rebase.updateDoc('/users/'+this.props.match.params.userID, data)
     .then(() => {
+      if (this.props.match.params.userID === store.getState().user.id){
+        let user = {
+          username: store.getState().user.username,
+          id: store.getState().user.id,
+          email: store.getState().user.email,
+          editUsers: this.state.editUsers,
+          editContent: this.state.editContent,
+          showContent: this.state.showContent,
+        }
+        store.dispatch(loginUser(user));
+      }
       this.setState({
-        saving:false,
+        value: 100,
       });
     });
   }
@@ -82,9 +91,12 @@ export default class Note extends Component{
     }
   }
 
+
+
   render(){
     return (
       <div>
+        <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
         <h2>Edit user</h2>
         <FormGroup>
           <FormGroup check>
@@ -92,7 +104,7 @@ export default class Note extends Component{
             <Input
               type="checkbox"
               checked={this.state.active}
-              onChange={(e) => this.setState({active: e.target.chec})}
+              onChange={(e) => this.setState({active: e.target.checked})}
               />{' '}
             Active
           </Label>
@@ -103,7 +115,7 @@ export default class Note extends Component{
             <Input
               type="checkbox"
               checked={this.state.editUsers}
-              onChange={(e) => this.setState({editUsers: e.target.chec})}
+              onChange={(e) => this.setState({editUsers: e.target.checked})}
               />{' '}
             Edit users
           </Label>
@@ -114,7 +126,7 @@ export default class Note extends Component{
             <Input
               type="checkbox"
               checked={this.state.showContent}
-              onChange={(e) => this.setState({showContent: e.target.chec})}
+              onChange={(e) => this.setState({showContent: e.target.checked})}
               />{' '}
             See all tags and notes
           </Label>
@@ -125,9 +137,9 @@ export default class Note extends Component{
             <Input
               type="checkbox"
               checked={this.state.editContent}
-              onChange={(e) => this.setState({editContent: e.target.chec})}
+              onChange={(e) => this.setState({editContent: e.target.checked})}
               />{' '}
-            See all tags and notes
+            Edit all tags and notes
           </Label>
         </FormGroup>
 
@@ -146,33 +158,10 @@ export default class Note extends Component{
               this.setState({email: e.target.value})}
           />
 
-          <Input
-            id="password"
-            placeholder="Password"
-            value={this.state.pass1}
-            onChange={(e) =>
-              this.setState({pass1: e.target.value})}
-          />
-
-          <Input
-            id="password"
-            placeholder="Repeat password"
-            value={this.state.pass2}
-            onChange={(e) =>
-              this.setState({pass2: e.target.value})}
-          />
-
-        { (this.state.pass1 !== this.state.pass2)
-          &&
-          <Alert color="danger">
-                  Zadané heslá sa nezhodujú.
-          </Alert>
-        }
         </FormGroup>
+        <Button color="success" onClick={() => this.submit()}> Save </Button>
 
-        <Button color="success"> Save </Button>
-        <Button color="danger">      <FontAwesomeIcon icon="trash" /></Button>
-</div>
+        </div>
     );
   }
 }

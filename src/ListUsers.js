@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ListGroup, ListGroupItem, InputGroup, InputGroupAddon, InputGroupText, Input  } from 'reactstrap';
+import { ListGroup, ListGroupItem, Progress, InputGroup, InputGroupAddon, InputGroupText, Input  } from 'reactstrap';
 import { rebase } from './index';
 import UserAdd from './UserAdd';
 import UserEdit from './UserEdit';
@@ -17,14 +17,17 @@ export default class ListUsers extends Component{
       users: [],
       search: "",
       tags: [],
+
+      value: 0,
     }
   }
 
   componentWillMount(){
+    this.setState({value: 0});
     this.ref = rebase.listenToCollection('/users', {
       context: this,
       withIds: true,
-      then: users=> this.setState({users})
+      then: users=> this.setState({users, value: 100})
     });
   }
 
@@ -34,7 +37,7 @@ export default class ListUsers extends Component{
 
 
   render(){
-    if (store.getState().user.username === "Log in"){
+    if (store.getState().user.username === "Log in" || !store.getState().user.editUsers){
       return(
         <div>
           K tejto stránke nemáte povolený prístup.
@@ -44,6 +47,7 @@ export default class ListUsers extends Component{
     return (
       <div className="row">
           <div className='flex-1'>
+            <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
 
             <InputGroup>
               <InputGroupAddon addonType="prepend">
@@ -79,7 +83,7 @@ export default class ListUsers extends Component{
 
           <div className="flex-2">
             {
-              this.props.match.params.userID && this.props.match.params.userID ==='add' && <UserAdd />
+              this.props.match.params.userID && this.props.match.params.userID ==='add' && <UserAdd match={this.props.match} history={this.props.history}/>
             }
             {
               this.props.match.params.userID && this.props.match.params.userID!=='add' && this.state.users.some((item)=>item.id===this.props.match.params.userID) && <UserEdit match={this.props.match} history={this.props.history}/>

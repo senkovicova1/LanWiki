@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, InputGroup, ListGroup, ListGroupItem, Table } from 'reactstrap';
+import { Button, FormGroup, Progress, Label, Input, InputGroup, ListGroup, ListGroupItem, Table } from 'reactstrap';
 import {hightlightText} from './helperFunctions';
 
 import { rebase } from './index';
@@ -22,6 +22,8 @@ export default class TagEdit extends Component{
       firstWrite: [],
       users: [],
       search: "",
+
+      value: 0,
     }
 
     this.addUser.bind(this);
@@ -51,6 +53,7 @@ export default class TagEdit extends Component{
                 active: tag.active,
                 public: tag.public,
                 users,
+                value: 100,
               })
             );
     });
@@ -73,24 +76,25 @@ export default class TagEdit extends Component{
 
   componentWillReceiveProps(props){
     if(this.props.match.params.tagID!==props.match.params.tagID){
-      this.setState({loading:true});
+      this.setState({value: 0});
       this.fetchData(props.match.params.tagID);
     }
   }
 
   submit(){
-    this.setState({saving:true});
+    this.setState({value: 0});
     let newRead = this.state.read.map(user => user.id);
     let newWrite = this.state.write.map(user => user.id);
     rebase.updateDoc('/tags/'+this.props.match.params.tagID, {name:this.state.name, body:this.state.body, read: newRead, write: newWrite, public: this.state.public, active: this.state.active})
     .then(() => {
       this.setState({
-        saving:false,
+        value: 100,
       });
     });
   }
 
   remove(){
+    this.setState({value: 0});
     if (window.confirm("Chcete zmazať tento tag?")) {
       rebase.removeDoc('/tags/'+this.props.match.params.tagID)
         .then(() =>
@@ -98,15 +102,16 @@ export default class TagEdit extends Component{
                 context: this,
                 withIds: true,
               })
-              .then((notes) =>
+              .then((notes) =>{
                 notes.filter(note => (note.tags.includes(this.props.match.params.tagID)))
                 .map(note =>
                     rebase.updateDoc('/notes/'+note.id, {name: note.name, body: note.body, tags: note.tags.filter(item => item !== this.props.match.params.tagID)})
-                    )
-              )
+                  );
+                this.props.history.push(`/notes/all`);
+              });
             });
-      this.props.history.goBack();
       };
+    this.setState({value: 100});
   }
 
   addUser(user){
@@ -145,11 +150,10 @@ export default class TagEdit extends Component{
   }
 
   render(){
-    if (!store.getState().user.editContent || (store.getState().user.username === "Log in"
-  && this.props.match.params.tagID !== 'add')){
+    if (this.props.match.params.tagID !== 'add' && (store.getState().user.username === "Log in" || !store.getState().user.editContent)){
       return(
         <div>
-          K tejto stránke nemáte povolený prístup.
+          K tejto stránke nemáte povolený prístupz.
         </div>
       );
     }
@@ -160,6 +164,8 @@ export default class TagEdit extends Component{
 
     return (
       <div >
+        <Progress value={this.state.value}>{this.state.value === 100 ? "Loaded" : "Loading"}</Progress>
+
         <h2>Edit tag</h2>
 
         <FormGroup check>
