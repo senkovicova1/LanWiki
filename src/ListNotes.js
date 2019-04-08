@@ -175,7 +175,7 @@ export default class ListNotes extends Component{
                         <Col><small style={{color: 'rgb(180, 180, 180)'}}>{this.state.tags.filter(tag =>
                           note.tags.includes(tag.id)).map(tag => "| " + tag.name + " ")}</small></Col>
                       </Row>
-      </ListGroupItem>
+                    </ListGroupItem>
                   ))
               }
             </ListGroup>

@@ -312,7 +312,11 @@ export default class Note extends Component{
                   data={this.state.body}
                   onChange={this.onEditorChange.bind(this)}
                   config={ {
-                      height: [ '75vh' ]
+                      height: [ '75vh' ],
+                      codeSnippet_languages: {
+                        javascript: 'JavaScript',
+                        php: 'PHP'
+                      }
                   } }
                   />
             </FormGroup>
