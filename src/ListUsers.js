@@ -71,7 +71,7 @@ export default class ListUsers extends Component{
                       href={`/users/${user.id}`}
                       onClick={(e) => {
                         e.preventDefault();
-                        this.props.history.push(`/users/${user.id}`);
+                        this.props.history.push(`/lanwiki/users/${user.id}`);
                       }}
                       action
                       key={user.id}

@@ -6,7 +6,7 @@ import { rebase } from './index';
 
 import store from "./redux/Store";
 
-export default class Note extends Component{
+export default class CMDBAddItem extends Component{
 
   constructor(props){
     super(props);

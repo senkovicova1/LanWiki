@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { ListGroup, ListGroupItem, Progress, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { ListGroup, ListGroupItem, Progress, Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { rebase } from './index';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import UserAdd from './UserAdd';
-import UserEdit from './UserEdit';
 import Login from './Login';
 
 import store from "./redux/Store";
@@ -92,7 +90,7 @@ class Sidebar extends Component {
       username: (store.getState().user ? store.getState().user.username : "Log in"),
       value: 100,
     });
-    this.props.history.push(`/notes/all`);
+    this.props.history.push(`/lanwiki/notes/all`);
   }
 
   logout(){
@@ -108,7 +106,7 @@ class Sidebar extends Component {
         username: "Log in",
         value: 100,
       });
-      this.props.history.push(`/notes/all`);
+      this.props.history.push(`/lanwiki/notes/all`);
     });
   }
 
@@ -169,8 +167,8 @@ class Sidebar extends Component {
           { //add tag sa ukaze iba prihlasenym pouzivatelom
             (store.getState().user.username !== "Log in" && store.getState().user.editContent)
             &&
-            <Link className='link' to={{pathname: `/tags/add`}}  key={0}>
-              { window.location.pathname.includes('/tags/add')
+            <Link className='link' to={{pathname: `/lanwiki/tags/add`}}  key={0}>
+              { window.location.pathname.includes('/lanwiki/tags/add')
                 &&
                   <ListGroupItem
                     className='sidebarItem'
@@ -181,7 +179,7 @@ class Sidebar extends Component {
                   </ListGroupItem>
               }
 
-              { !window.location.pathname.includes('/tags/add')
+              { !window.location.pathname.includes('/lanwiki/tags/add')
                 &&
                   <ListGroupItem
                     className='sidebarItem'
@@ -230,7 +228,7 @@ class Sidebar extends Component {
                               <Link className='link' to={{pathname: `/notes/${asset.id}`}} style={{color: 'rgb(255, 255, 255)'}}>    {asset.name} </Link>
                                 { (store.getState().user.username !== "Log in" && store.getState().user.editContent)
                                   &&
-                                    <Link className='link' to={{pathname: `/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
+                                    <Link className='link' to={{pathname: `/lanwiki/tags/${asset.id}`}}  style={{color: 'rgb(255, 255, 255)'}}><FontAwesomeIcon icon="cog" /></Link>
                                 }
                                 {(!asset.read.includes(store.getState().user.id) && store.getState().user.showContent)
                                   &&
@@ -247,7 +245,7 @@ class Sidebar extends Component {
                               <Link className='link' to={{pathname: `/notes/${asset.id}`}} >    {asset.name} </Link>
                               { (store.getState().user.username !== "Log in" && store.getState().user.editContent)
                                 &&
-                                  <Link className='link' to={{pathname: `/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
+                                  <Link className='link' to={{pathname: `/lanwiki/tags/${asset.id}`}}  ><FontAwesomeIcon icon="cog" /></Link>
                               }
                               {(!asset.read.includes(store.getState().user.id) && store.getState().user.showContent)
                                 &&

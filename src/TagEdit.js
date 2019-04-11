@@ -63,7 +63,7 @@ export default class TagEdit extends Component{
     //kontrola, ci je user prihlaseny - ak nie je, nezobrazi sa mu edit ale prepne sa na /notes/all
 
   /*  if (store.getState().user.username === "Log in"){
-      this.props.history.push(`/notes/all`);
+      this.props.history.push(`/lanwiki/notes/all`);
     }*/
     this.ref = rebase.listenToCollection('/users', {
       context: this,
@@ -107,7 +107,7 @@ export default class TagEdit extends Component{
                 .map(note =>
                     rebase.updateDoc('/notes/'+note.id, {name: note.name, body: note.body, tags: note.tags.filter(item => item !== this.props.match.params.tagID)})
                   );
-                this.props.history.push(`/notes/all`);
+                this.props.history.push(`/lanwiki/notes/all`);
               });
             });
       };

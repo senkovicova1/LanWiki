@@ -48,7 +48,6 @@ export default class ListNotes extends Component{
   }*/
 
   createNew(){
-    let date = new Date();
     rebase.addToCollection('notes',
     {name: "Untitled",
       tags: (this.props.match.params.tagID !== "all" ? [this.props.match.params.tagID] : []),
@@ -57,7 +56,7 @@ export default class ListNotes extends Component{
       dateCreated: Date().toLocaleString()
     })
     .then((note) => {
-      this.props.history.push(`/notes/${this.props.match.params.tagID}/${note.id}`);
+      this.props.history.push(`/lanwiki/notes/${this.props.match.params.tagID}/${note.id}`);
     });
   }
 
@@ -162,7 +161,7 @@ export default class ListNotes extends Component{
                       href={`/notes/${this.props.match.params.tagID}/` + note.id}
                       onClick={(e) => {
                         e.preventDefault();
-                        this.props.history.push(`/notes/${this.props.match.params.tagID}/` + note.id);
+                        this.props.history.push(`/lanwiki/notes/${this.props.match.params.tagID}/` + note.id);
                       }}
                       action
                       key={note.id}

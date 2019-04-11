@@ -7,7 +7,6 @@ import { rebase } from './index';
 import firebase from 'firebase';
 
 import store from "./redux/Store";
-import { loginUser } from "./redux/actions/index";
 
 export default class Note extends Component{
 
@@ -59,7 +58,7 @@ export default class Note extends Component{
               validMail: false,
               value: 100,
             });
-            this.props.history.push(`/users/${id}`);
+            this.props.history.push(`/lanwiki/users/${id}`);
           });
       });
   }

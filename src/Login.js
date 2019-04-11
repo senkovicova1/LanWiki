@@ -85,7 +85,7 @@ export default class Login extends Component{
             });
 
           }).catch((error) => {
-            var errorCode = error.code;
+      //      var errorCode = error.code;
             let errorMessage = "";
             if (error.code === "auth/user-not-found") {
                 errorMessage = "Užívateľ s takýmito prihlasovacími údajmi neexistuje.";

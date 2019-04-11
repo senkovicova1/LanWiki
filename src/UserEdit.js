@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Progress, Label, Input, Alert, } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, FormGroup, Progress, Label, Input } from 'reactstrap';
 
 import { rebase } from './index';
 

@@ -189,7 +189,7 @@ export default class Note extends Component{
       const CAN_READ = store.getState().user.showContent || this.state.chosenTags.length === 0 || this.state.tags.some(tag => this.state.chosenTags.includes(tag.id) && (tag.public || (store.getState().user.username !== 'Log in' && tag.read.includes(store.getState().user.id))));
 
       if (!CAN_READ){
-      //  this.props.history.push(`/notes/all`);
+      //  this.props.history.push(`/lanwiki/notes/all`);
         return (<div>
           K tejto stránke nemáte povolený prístup.
         </div>);
